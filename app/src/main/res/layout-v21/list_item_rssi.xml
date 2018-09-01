@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="name"
+        android:textAppearance="@android:style/TextAppearance.Material.Body2"
+        tools:targetApi="lollipop" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="RSSI"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+
+        <TextView
+            android:id="@+id/tv_rssi"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="rssi"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Capability"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+
+        <TextView
+            android:id="@+id/tv_cap"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="rssi"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Frequency"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+
+        <TextView
+            android:id="@+id/tv_freq"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="rssi"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            tools:targetApi="lollipop" />
+    </LinearLayout>
+
+</LinearLayout>
