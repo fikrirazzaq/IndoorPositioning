@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.Random;
 public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     private List<AccessPoint> accessPointList;
-    SwipeRefreshLayout swiper;
 
     public ApAdapter(List<AccessPoint> accessPointList) {
         this.accessPointList = accessPointList;
@@ -37,35 +37,23 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.rssi.setText(accessPoint.getLevel());
         holder.cap.setText(accessPoint.getCap());
         holder.freq.setText(accessPoint.getFreq());
+        holder.distance.setText(accessPoint.getDistance());
+        holder.bssid.setText(accessPoint.getBssid());
+
+        if (accessPoint.getCh() == "3") {
+            holder.img.setImageResource(R.drawable.ic_wifi_none);
+        } else if (accessPoint.getCh() == "2") {
+            holder.img.setImageResource(R.drawable.ic_wifi_weak);
+        } else if (accessPoint.getCh() == "1") {
+            holder.img.setImageResource(R.drawable.ic_wifi_good);
+        } else if (accessPoint.getCh() == "0") {
+            holder.img.setImageResource(R.drawable.ic_wifi_full);
+        }
+
+
 
     }
 
-    private void refresh()
-    {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                accessPointList.add(0,accessPointList.get(new Random().nextInt(accessPointList.size())));
-
-                notifyDataSetChanged();
-
-                swiper.setRefreshing(false);
-            }
-        },3000);
-    }
-
-
-    // Clean all elements of the recycler
-    public void clear() {
-        accessPointList.clear();
-        notifyDataSetChanged();
-    }
-
-    // Add a list of items -- change to type used
-    public void addAll(List<AccessPoint> list) {
-        accessPointList.addAll(list);
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {
@@ -74,7 +62,8 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView name, rssi, cap, freq, ch, venue;
+        public TextView name, rssi, cap, freq, distance, bssid, ch, venue;
+        public ImageView img;
 
         public MyViewHolder(View view) {
             super(view);
@@ -82,6 +71,9 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             rssi = view.findViewById(R.id.tv_rssi);
             cap = view.findViewById(R.id.tv_cap);
             freq = view.findViewById(R.id.tv_freq);
+            img = view.findViewById(R.id.img_wifi);
+            distance = view.findViewById(R.id.tx_distance);
+            bssid = view.findViewById(R.id.tv_bssid);
         }
     }
 }

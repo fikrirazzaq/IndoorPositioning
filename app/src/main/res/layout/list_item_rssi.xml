@@ -4,87 +4,94 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="name"
-        android:textAppearance="@android:style/TextAppearance.Material.Body2"
-        tools:targetApi="lollipop" />
-
-    <LinearLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="5">
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="4dp"
+        android:elevation="5dp"
+        app:cardCornerRadius="4dp">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="RSSI"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_rssi"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:text="rssi"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="5">
+                <ImageView
+                    android:id="@+id/img_wifi"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="4dp"
+                    android:src="@drawable/ic_wifi_full" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Capability"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
+                <TextView
+                    android:id="@+id/tx_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="6dp"
+                    android:text="20"
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_cap"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:text="rssi"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="5">
+                    <TextView
+                        android:id="@+id/tv_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="name"
+                        android:textAppearance="@android:style/TextAppearance.Material.Body2"
+                        tools:targetApi="lollipop" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Frequency"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
+                    <TextView
+                        android:id="@+id/tv_bssid"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="safasdfasdfasdf"
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+                        tools:targetApi="lollipop" />
 
-        <TextView
-            android:id="@+id/tv_freq"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:text="rssi"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            tools:targetApi="lollipop" />
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_rssi"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="rssi"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        tools:targetApi="lollipop" />
 
+                    <TextView
+                        android:id="@+id/tv_cap"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="cap"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        tools:targetApi="lollipop" />
+
+                    <TextView
+                        android:id="@+id/tv_freq"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="freq"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        tools:targetApi="lollipop" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

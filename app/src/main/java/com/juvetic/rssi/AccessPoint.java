@@ -2,18 +2,39 @@ package com.juvetic.rssi;
 
 public class AccessPoint {
 
+    private String bssid;
     private String name;
     private String level;
     private String freq;
     private String cap;
     private String ch;
     private String venue;
+    private String distance;
 
-    public AccessPoint(String name, String level, String freq, String cap) {
+    public AccessPoint(String name, String level, String freq, String cap, String distance, String ch, String bssid) {
         this.name = name;
         this.level = level;
         this.freq = freq;
         this.cap = cap;
+        this.distance = distance;
+        this.ch = ch;
+        this.bssid = bssid;
+    }
+
+    public String getBssid() {
+        return bssid;
+    }
+
+    public void setBssid(String bssid) {
+        this.bssid = bssid;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
     }
 
     public String getFreq() {
