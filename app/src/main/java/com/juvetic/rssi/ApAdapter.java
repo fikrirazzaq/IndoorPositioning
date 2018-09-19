@@ -40,18 +40,25 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.distance.setText(accessPoint.getDistance());
         holder.bssid.setText(accessPoint.getBssid());
 
-        if (accessPoint.getCh() == "3") {
-            holder.img.setImageResource(R.drawable.ic_wifi_none);
-        } else if (accessPoint.getCh() == "2") {
-            holder.img.setImageResource(R.drawable.ic_wifi_weak);
-        } else if (accessPoint.getCh() == "1") {
-            holder.img.setImageResource(R.drawable.ic_wifi_good);
-        } else if (accessPoint.getCh() == "0") {
-            holder.img.setImageResource(R.drawable.ic_wifi_full);
+        switch (accessPoint.getCh()) {
+            case "0":
+                holder.img.setImageResource(R.drawable.ic_wifi_none);
+                break;
+            case "1":
+                holder.img.setImageResource(R.drawable.ic_wifi_weak);
+                break;
+            case "2":
+                holder.img.setImageResource(R.drawable.ic_wifi_good);
+                break;
+            case "3":
+                holder.img.setImageResource(R.drawable.ic_wifi_full);
+                break;
         }
 
+    }
 
-
+    public void setItems(List<AccessPoint> accessPointList) {
+        this.accessPointList = accessPointList;
     }
 
 
