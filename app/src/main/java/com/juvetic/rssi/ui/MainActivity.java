@@ -1,11 +1,11 @@
-package com.juvetic.rssi;
+package com.juvetic.rssi.ui;
 
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -14,38 +14,50 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
-
+import com.juvetic.rssi.R;
+import com.juvetic.rssi.model.AccessPoint;
+import com.juvetic.rssi.util.ApComparator;
+import com.juvetic.rssi.util.Formula;
+import com.juvetic.rssi.util.RecyclerTouchListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<AccessPoint> accessPointList = new ArrayList<>();
-    private RecyclerView recyclerView;
-    private ApAdapter mAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
+
+    private List<AccessPoint> accessPointList = new ArrayList<>();
+
+    private ApAdapter mAdapter;
+
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle("List Wifi Strength");
 
         recyclerView = findViewById(R.id.recycler_view);
         loadData();
 
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                AccessPoint ap = accessPointList.get(position);
-                Toast.makeText(getApplicationContext(), ap.getName() + " is selected!", Toast.LENGTH_SHORT).show();
-            }
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView,
+                new RecyclerTouchListener.ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        AccessPoint ap = accessPointList.get(position);
+                        Toast.makeText(getApplicationContext(), ap.getName() + " is selected!", Toast.LENGTH_SHORT)
+                                .show();
+                    }
 
-            @Override
-            public void onLongClick(View view, int position) {
+                    @Override
+                    public void onLongClick(View view, int position) {
 
-            }
-        }));
+                    }
+                }));
 
         loadData();
 
@@ -84,7 +96,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadData(){
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
+    private void loadData() {
         accessPointList.clear();
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -101,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     String.valueOf(scanResult.level) + " dBm",
                     String.valueOf(scanResult.frequency) + " MHz",
                     scanResult.capabilities,
-                    distance(scanResult.level) + " m",
+                    Formula.distance(scanResult.level) + " m",
                     String.valueOf(level),
                     scanResult.BSSID);
             accessPointList.add(accessPoint);
@@ -115,13 +133,6 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
         runLayoutAnimation(recyclerView);
         Toast.makeText(this, "Jumlah Access Point: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
-    }
-
-    private String distance(int rssi) {
-        int d0 = 1;
-        int p = -40;
-        int n = 2;
-        return String.format("%.2f", d0 * ( Math.pow(10, (p - rssi) / (float) (n * 10)) ));
     }
 
     private void runLayoutAnimation(final RecyclerView recyclerView) {

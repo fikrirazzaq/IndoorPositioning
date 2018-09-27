@@ -1,5 +1,6 @@
-package com.juvetic.rssi;
+package com.juvetic.rssi.util;
 
+import com.juvetic.rssi.model.AccessPoint;
 import java.util.Comparator;
 
 public class ApComparator implements Comparator<AccessPoint> {

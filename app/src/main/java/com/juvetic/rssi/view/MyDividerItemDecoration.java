@@ -1,4 +1,4 @@
-package com.juvetic.rssi;
+package com.juvetic.rssi.view;
 
 import android.content.Context;
 import android.content.res.Resources;

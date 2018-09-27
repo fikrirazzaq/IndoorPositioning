@@ -1,4 +1,4 @@
-package com.juvetic.rssi;
+package com.juvetic.rssi.model;
 
 public class AccessPoint {
 
