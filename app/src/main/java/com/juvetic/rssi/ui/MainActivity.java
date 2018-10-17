@@ -110,20 +110,25 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        List<ScanResult> wifiList = wifiManager.getScanResults();
-        for (ScanResult scanResult : wifiList) {
-            int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
+        List<ScanResult> wifiList = null;
+        if (wifiManager != null) {
+            wifiList = wifiManager.getScanResults();
+        }
+        if (wifiList != null) {
+            for (ScanResult scanResult : wifiList) {
+                int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
 
-            AccessPoint accessPoint = new AccessPoint(
-                    scanResult.SSID,
-                    String.valueOf(scanResult.level) + " dBm",
-                    String.valueOf(scanResult.frequency) + " MHz",
-                    scanResult.capabilities,
-                    Formula.distance(scanResult.level) + " m",
-                    String.valueOf(level),
-                    scanResult.BSSID);
-            accessPointList.add(accessPoint);
+                AccessPoint accessPoint = new AccessPoint(
+                        scanResult.SSID,
+                        String.valueOf(scanResult.level) + " dBm",
+                        String.valueOf(scanResult.frequency) + " MHz",
+                        scanResult.capabilities,
+                        Formula.distance(scanResult.level) + " m",
+                        String.valueOf(level),
+                        scanResult.BSSID);
+                accessPointList.add(accessPoint);
 
+            }
         }
 
         Collections.sort(accessPointList, new ApComparator());

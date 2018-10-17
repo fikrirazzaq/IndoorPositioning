@@ -19,12 +19,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.LocationOverlayActivity">
+        <activity android:name=".ui.LocationOverlayActivity"/>
 
-        </activity>
     </application>
 
 </manifest>

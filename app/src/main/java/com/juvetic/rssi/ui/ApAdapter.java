@@ -16,7 +16,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     private List<AccessPoint> accessPointList;
 
-    public ApAdapter(List<AccessPoint> accessPointList) {
+    ApAdapter(List<AccessPoint> accessPointList) {
         this.accessPointList = accessPointList;
     }
 
@@ -54,6 +54,21 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
                 break;
         }
 
+        switch (accessPoint.getBssid()) {
+            case "b6:e6:2d:23:84:90":
+                holder.ap.setVisibility(View.VISIBLE);
+                holder.ap.setText("AP1");
+                break;
+            case "6a:c6:3a:d6:9c:92":
+                holder.ap.setVisibility(View.VISIBLE);
+                holder.ap.setText("AP2");
+                break;
+            case "be:dd:c2:fe:3b:0b":
+                holder.ap.setVisibility(View.VISIBLE);
+                holder.ap.setText("AP3");
+                break;
+        }
+
     }
 
     public void setItems(List<AccessPoint> accessPointList) {
@@ -66,12 +81,13 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         return accessPointList.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView name, rssi, cap, freq, distance, bssid, ch, venue;
-        public ImageView img;
+        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap;
 
-        public MyViewHolder(View view) {
+        ImageView img;
+
+        MyViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.tv_name);
             rssi = view.findViewById(R.id.tv_rssi);
@@ -80,6 +96,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             img = view.findViewById(R.id.img_wifi);
             distance = view.findViewById(R.id.tx_distance);
             bssid = view.findViewById(R.id.tv_bssid);
+            ap = view.findViewById(R.id.tv_ap);
         }
     }
 }
