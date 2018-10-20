@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.juvetic.rssi.R;
 
@@ -41,14 +42,21 @@ public class DashboardActivity extends AppCompatActivity {
         map.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                Intent intent = new Intent(DashboardActivity.this, LocationOverlayActivity.class);
-                intent.putExtra("x1", x1.getText().toString());
-                intent.putExtra("y1", y1.getText().toString());
-                intent.putExtra("x2", x2.getText().toString());
-                intent.putExtra("y2", y2.getText().toString());
-                intent.putExtra("x3", x3.getText().toString());
-                intent.putExtra("y3", y3.getText().toString());
-                startActivity(intent);
+                if (x1.getText().toString().equals("") || y1.getText().toString().equals("")
+                        || x2.getText().toString().equals("") || y2.getText().toString().equals("")
+                        || x3.getText().toString().equals("") || y3.getText().toString().equals("")) {
+                    Toast.makeText(DashboardActivity.this, "Harus diisi", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(DashboardActivity.this, LocationOverlayActivity.class);
+                    intent.putExtra("x1", x1.getText().toString());
+                    intent.putExtra("y1", y1.getText().toString());
+                    intent.putExtra("x2", x2.getText().toString());
+                    intent.putExtra("y2", y2.getText().toString());
+                    intent.putExtra("x3", x3.getText().toString());
+                    intent.putExtra("y3", y3.getText().toString());
+                    startActivity(intent);
+                }
+
             }
         });
     }
