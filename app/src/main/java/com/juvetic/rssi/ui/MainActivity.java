@@ -123,11 +123,12 @@ public class MainActivity extends AppCompatActivity {
                         String.valueOf(scanResult.level) + " dBm",
                         String.valueOf(scanResult.frequency) + " MHz",
                         scanResult.capabilities,
-                        Formula.distance(scanResult.level) + " m",
+                        Formula.distance(scanResult.level),
                         String.valueOf(level),
                         scanResult.BSSID);
-                accessPointList.add(accessPoint);
-
+//                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
+                    accessPointList.add(accessPoint);
+//                }
             }
         }
 
