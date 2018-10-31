@@ -1,6 +1,7 @@
 package com.juvetic.rssi.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,7 +12,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
@@ -32,6 +35,8 @@ public class LocationOverlayActivity extends AppCompatActivity {
 
     private List<AccessPoint> accessPointList = new ArrayList<>();
 
+    String x1, y1, x2, y2, x3, y3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,9 +45,15 @@ public class LocationOverlayActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle("Indoor Map");
 
+        Intent intent = getIntent();
+        x1 = intent.getStringExtra("x1");
+        y1 = intent.getStringExtra("y1");
+        x2 = intent.getStringExtra("x2");
+        y2 = intent.getStringExtra("y2");
+        x3 = intent.getStringExtra("x3");
+        y3 = intent.getStringExtra("y3");
+
         loadData();
-
-
 
         mapView = findViewById(R.id.location_mapview);
 
@@ -57,28 +68,34 @@ public class LocationOverlayActivity extends AppCompatActivity {
                 locationOverlay.setIndicatorArrowBitmap(
                         BitmapFactory.decodeResource(getResources(), R.mipmap.indicator_arrow));
 
-                float d1 = 0, d2 = 0, d3 = 0;
+                double d1 = 0, d2 = 0, d3 = 0;
                 for (AccessPoint a : accessPointList) {
                     switch (a.getBssid()) {
                         case "b6:e6:2d:23:84:90":
-                            d1 = Float.parseFloat(a.getDistance());
+                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            Log.d("=======d1 ", "onMapLoadComplete: " + d1);
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            d2 = Float.parseFloat(a.getDistance());
+                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            Log.d("=======d2 ", "onMapLoadComplete: " + d2);
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            d3 = Float.parseFloat(a.getDistance());
+                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            Log.d("=======d3 ", "onMapLoadComplete: " + d3);
                             break;
                     }
                 }
 
                 List<Double> xy = new ArrayList<>();
-                xy = Formula.koordinat(600, 660, d1, 1350, 660, d2, 2300, 660, d3);
-
+                xy = Formula.koordinat(
+                        Double.valueOf(x1), Double.valueOf(x1), d1,
+                        Double.valueOf(x2), Double.valueOf(y2), d2,
+                        Double.valueOf(x3), Double.valueOf(y3), d3);
+                Log.d("============", "onMapLoadComplete: " + xy);
                 locationOverlay.setPosition(new PointF(xy.get(0).floatValue(), xy.get(1).floatValue()));
-//                locationOverlay.setIndicatorCircleRotateDegree(90);
-//                locationOverlay.setMode(SVGMapLocationOverlay.MODE_COMPASS);
-//                locationOverlay.setIndicatorArrowRotateDegree(-45);
+                locationOverlay.setIndicatorCircleRotateDegree(90);
+                locationOverlay.setMode(SVGMapLocationOverlay.MODE_COMPASS);
+                locationOverlay.setIndicatorArrowRotateDegree(-45);
                 mapView.getOverLays().add(locationOverlay);
                 mapView.refresh();
             }

@@ -13,9 +13,9 @@ public class Formula {
     }
 
     public static List<Double> koordinat(
-            float x1, float y1, float d1,
-            float x2, float y2, float d2,
-            float x3, float y3, float d3) {
+            double x1, double y1, double d1,
+            double x2, double y2, double d2,
+            double x3, double y3, double d3) {
         double A = Math.pow(x1,2) + Math.pow(y1,2) - Math.pow(d1,2);
         double B = Math.pow(x2,2) + Math.pow(y2,2) - Math.pow(d2,2);
         double C = Math.pow(x3,2) + Math.pow(y3,2) - Math.pow(d3,2);
