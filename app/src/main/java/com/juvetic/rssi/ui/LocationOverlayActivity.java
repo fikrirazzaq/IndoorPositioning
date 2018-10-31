@@ -87,7 +87,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "sample2.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "denah_gedung_e.svg"));
 
         mapView.getController().sparkAtPoint(new PointF(600, 660), 75, Color.BLACK, 1000);
         mapView.getController().sparkAtPoint(new PointF(1350, 660), 75, Color.GREEN, 1000);
