@@ -106,9 +106,9 @@ public class LocationOverlayActivity extends AppCompatActivity {
         });
         mapView.loadMap(AssetsHelper.getContent(this, "denah_gedung_e.svg"));
 
-        mapView.getController().sparkAtPoint(new PointF(600, 660), 75, Color.BLACK, 1000);
-        mapView.getController().sparkAtPoint(new PointF(1350, 660), 75, Color.GREEN, 1000);
-        mapView.getController().sparkAtPoint(new PointF(2300, 660), 75, Color.BLUE, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 75, Color.GREEN, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 75, Color.BLUE, 1000);
     }
 
     private void loadData() {
