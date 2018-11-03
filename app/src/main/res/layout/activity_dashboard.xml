@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".ui.DashboardActivity">
 
     <Button
@@ -13,41 +14,11 @@
         android:layout_height="wrap_content"
         android:text="List" />
 
-    <EditText
-        android:id="@+id/tx_x1"
+    <Button
+        android:id="@+id/btn_apdeploy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="X1" />
-
-    <EditText
-        android:id="@+id/tx_y1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Y1" />
-
-    <EditText
-        android:id="@+id/tx_x2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="X2" />
-
-    <EditText
-        android:id="@+id/tx_y2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Y2" />
-
-    <EditText
-        android:id="@+id/tx_x3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="X3" />
-
-    <EditText
-        android:id="@+id/tx_y3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Y3" />
+        android:text="AP DEPLOY" />
 
     <Button
         android:id="@+id/btn_map"

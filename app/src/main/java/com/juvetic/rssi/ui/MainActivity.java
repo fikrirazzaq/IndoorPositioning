@@ -14,11 +14,13 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
+
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.Formula;
 import com.juvetic.rssi.util.RecyclerTouchListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         String.valueOf(level),
                         scanResult.BSSID);
 //                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
-                    accessPointList.add(accessPoint);
+                accessPointList.add(accessPoint);
 //                }
             }
         }

@@ -16,14 +16,18 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.Formula;
+import com.juvetic.rssi.util.ToolUtil;
 import com.juvetic.rssi.util.helper.AssetsHelper;
+
 import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
 import id.recharge.library.overlay.SVGMapLocationOverlay;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,12 +50,12 @@ public class LocationOverlayActivity extends AppCompatActivity {
         setTitle("Indoor Map");
 
         Intent intent = getIntent();
-        x1 = intent.getStringExtra("x1");
-        y1 = intent.getStringExtra("y1");
-        x2 = intent.getStringExtra("x2");
-        y2 = intent.getStringExtra("y2");
-        x3 = intent.getStringExtra("x3");
-        y3 = intent.getStringExtra("y3");
+        x1 = ToolUtil.Storage.getValueString(this, "x1");
+        y1 = ToolUtil.Storage.getValueString(this, "y1");
+        x2 = ToolUtil.Storage.getValueString(this, "x2");
+        y2 = ToolUtil.Storage.getValueString(this, "y2");
+        x3 = ToolUtil.Storage.getValueString(this, "x3");
+        y3 = ToolUtil.Storage.getValueString(this, "y3");
 
         loadData();
 
@@ -72,21 +76,21 @@ public class LocationOverlayActivity extends AppCompatActivity {
                 for (AccessPoint a : accessPointList) {
                     switch (a.getBssid()) {
                         case "b6:e6:2d:23:84:90":
-                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
                             Log.d("=======d1 ", "onMapLoadComplete: " + d1);
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
                             Log.d("=======d2 ", "onMapLoadComplete: " + d2);
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length()-2));
+                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
                             Log.d("=======d3 ", "onMapLoadComplete: " + d3);
                             break;
                     }
                 }
 
-                List<Double> xy = new ArrayList<>();
+                List<Double> xy;
                 xy = Formula.koordinat(
                         Double.valueOf(x1), Double.valueOf(x1), d1,
                         Double.valueOf(x2), Double.valueOf(y2), d2,
@@ -104,7 +108,9 @@ public class LocationOverlayActivity extends AppCompatActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "denah_gedung_e.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v4.svg"));
+
+        Toast.makeText(this, x1 + " " + x2 + " " + x3 + " " + y1 + " " + y2 + " " + y3, Toast.LENGTH_SHORT).show();
 
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 75, Color.GREEN, 1000);
