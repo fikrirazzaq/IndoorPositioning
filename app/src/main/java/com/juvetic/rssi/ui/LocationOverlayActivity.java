@@ -10,24 +10,17 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
-
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.Formula;
 import com.juvetic.rssi.util.ToolUtil;
 import com.juvetic.rssi.util.helper.AssetsHelper;
-
 import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
 import id.recharge.library.overlay.SVGMapLocationOverlay;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,6 +53,8 @@ public class LocationOverlayActivity extends AppCompatActivity {
         loadData();
 
         mapView = findViewById(R.id.location_mapview);
+        mapView.getController().setScrollGestureEnabled(false);
+        mapView.getController().setZoomGestureEnabled(false);
 
         mapView.registerMapViewListener(new SVGMapViewListener() {
             @Override
@@ -108,9 +103,8 @@ public class LocationOverlayActivity extends AppCompatActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v4.svg"));
-
-        Toast.makeText(this, x1 + " " + x2 + " " + x3 + " " + y1 + " " + y2 + " " + y3, Toast.LENGTH_SHORT).show();
+        mapView.loadMap(AssetsHelper.getContent(this, "denah_gedung_e.svg"));
+//        Toast.makeText(this, x1 + " " + x2 + " " + x3 + " " + y1 + " " + y2 + " " + y3, Toast.LENGTH_SHORT).show();
 
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 75, Color.GREEN, 1000);
