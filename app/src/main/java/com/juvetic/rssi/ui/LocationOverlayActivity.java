@@ -50,11 +50,19 @@ public class LocationOverlayActivity extends AppCompatActivity {
         x3 = ToolUtil.Storage.getValueString(this, "x3");
         y3 = ToolUtil.Storage.getValueString(this, "y3");
 
+        if (x1.equals("") && y1.equals("") && x2.equals("") && y2.equals("")
+                && x3.equals("") && y3.equals("")) {
+            x1 = "0";
+            y1 = "0";
+            x2 = "0";
+            y2 = "0";
+            x3 = "0";
+            y3 = "0";
+        }
+
         loadData();
 
         mapView = findViewById(R.id.location_mapview);
-        mapView.getController().setScrollGestureEnabled(false);
-        mapView.getController().setZoomGestureEnabled(false);
 
         mapView.registerMapViewListener(new SVGMapViewListener() {
             @Override
@@ -78,7 +86,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
                             d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
                             Log.d("=======d2 ", "onMapLoadComplete: " + d2);
                             break;
-                        case "be:dd:c2:fe:3b:0b":
+                        case "zaJuve1897!   be:dd:c2:fe:3b:0b":
                             d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
                             Log.d("=======d3 ", "onMapLoadComplete: " + d3);
                             break;
@@ -109,6 +117,8 @@ public class LocationOverlayActivity extends AppCompatActivity {
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 75, Color.GREEN, 1000);
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 75, Color.BLUE, 1000);
+        mapView.getController().setScrollGestureEnabled(false);
+        mapView.getController().setZoomGestureEnabled(false);
     }
 
     private void loadData() {
