@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
+            accessPointList.clear();
+
             List<ScanResult> scanResultList = wifiManager.getScanResults();
             if (scanResultList != null) {
                 for (ScanResult scanResult : scanResultList) {

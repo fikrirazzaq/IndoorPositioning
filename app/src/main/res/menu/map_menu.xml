@@ -3,10 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_main_deploy"
+        android:id="@+id/map_menu_deploy"
         android:icon="@drawable/ic_event_note_black_24dp"
         android:orderInCategory="100"
         app:showAsAction="always"
         android:title="Deploy" />
+
+    <item
+        android:id="@+id/map_menu_reload"
+        android:icon="@drawable/ic_autorenew_black_24dp"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:title="Reload" />
 
 </menu>

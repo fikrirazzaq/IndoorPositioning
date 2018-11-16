@@ -1,7 +1,9 @@
 package com.juvetic.rssi.ui;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -36,6 +38,10 @@ public class LocationOverlayActivity extends AppCompatActivity {
     private List<AccessPoint> accessPointList = new ArrayList<>();
 
     String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos;
+
+    WifiManager wifiManager;
+
+    WifiScanReceiver wifiReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +81,11 @@ public class LocationOverlayActivity extends AppCompatActivity {
             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "yPos", "0");
         }
 
-        loadData();
+//        loadData();
+
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiReceiver = new LocationOverlayActivity.WifiScanReceiver();
+        wifiManager.startScan();
 
         mapView = findViewById(R.id.location_mapview);
 
@@ -143,6 +153,78 @@ public class LocationOverlayActivity extends AppCompatActivity {
         mapView.getController().setZoomGestureEnabled(false);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.map_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.map_menu_deploy:
+                InformationDialog bottomSheetDialog = InformationDialog.getInstance();
+                bottomSheetDialog.show(getSupportFragmentManager(), "Custom Bottom Sheet");
+                return true;
+            case R.id.map_menu_reload:
+                wifiManager.startScan();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    protected void onPause() {
+        unregisterReceiver(wifiReceiver);
+        super.onPause();
+    }
+
+    protected void onResume() {
+        registerReceiver(
+                wifiReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        );
+        super.onResume();
+    }
+
+    class WifiScanReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            accessPointList.clear();
+
+            List<ScanResult> scanResultList = wifiManager.getScanResults();
+            if (scanResultList != null) {
+                for (ScanResult scanResult : scanResultList) {
+                    int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
+
+                    AccessPoint accessPoint = new AccessPoint(
+                            scanResult.SSID,
+                            String.valueOf(scanResult.level) + " dBm",
+                            String.valueOf(scanResult.frequency) + " MHz",
+                            scanResult.capabilities,
+                            Formula.distance(scanResult.level),
+                            String.valueOf(level),
+                            scanResult.BSSID);
+                    accessPointList.add(accessPoint);
+                }
+            }
+
+            Collections.sort(accessPointList, new ApComparator());
+
+            Toast.makeText(getApplicationContext(), "Access Point terdekat: " + accessPointList.size(),
+                    Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
     private void loadData() {
         accessPointList.clear();
 
@@ -171,30 +253,5 @@ public class LocationOverlayActivity extends AppCompatActivity {
         Collections.sort(accessPointList, new ApComparator());
 
         Toast.makeText(this, "Jumlah Access Point Terdekat: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.map_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_main_deploy:
-                InformationDialog bottomSheetDialog = InformationDialog.getInstance();
-                bottomSheetDialog.show(getSupportFragmentManager(), "Custom Bottom Sheet");
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }
