@@ -7,6 +7,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,9 +18,11 @@ import com.juvetic.rssi.util.ToolUtil;
 
 public class ApDeployActivity extends AppCompatActivity {
 
-    EditText x1, y1, x2, y2, x3, y3;
+    EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3;
 
-    TextView d1, d2, d3, xPos, yPos;
+    RadioButton rdBtnDefault, rdBtnLainnya;
+
+    RadioGroup rgAp;
 
     Button btnSave;
 
@@ -35,11 +40,11 @@ public class ApDeployActivity extends AppCompatActivity {
         y2 = findViewById(R.id.edt_y2);
         x3 = findViewById(R.id.edt_x3);
         y3 = findViewById(R.id.edt_y3);
-        d1 = findViewById(R.id.tv_d1);
-        d2 = findViewById(R.id.tv_d2);
-        d3 = findViewById(R.id.tv_d3);
-        xPos = findViewById(R.id.tv_x_pos);
-        yPos = findViewById(R.id.tv_y_pos);
+        edtBssidAp1 = findViewById(R.id.edt_ap1);
+        edtBssidAp2 = findViewById(R.id.edt_ap2);
+        edtBssidAp3 = findViewById(R.id.edt_ap3);
+
+        setupRadioGroupAp();
 
         btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(view -> {
@@ -50,10 +55,44 @@ public class ApDeployActivity extends AppCompatActivity {
             ToolUtil.Storage.setValueString(this, "x3", x3.getText().toString());
             ToolUtil.Storage.setValueString(this, "y3", y3.getText().toString());
 
+            if (String.valueOf(rgAp.getCheckedRadioButtonId()).contains("67")) {
+                ToolUtil.Storage.setValueString(this, "Bssid1", "b6:e6:2d:23:84:90");
+                ToolUtil.Storage.setValueString(this, "Bssid2", "6a:c6:3a:d6:9c:92");
+                ToolUtil.Storage.setValueString(this, "Bssid3", "be:dd:c2:fe:3b:0b");
+            } else {
+                ToolUtil.Storage.setValueString(this, "Bssid1", edtBssidAp1.getText().toString());
+                ToolUtil.Storage.setValueString(this, "Bssid2", edtBssidAp2.getText().toString());
+                ToolUtil.Storage.setValueString(this, "Bssid3", edtBssidAp3.getText().toString());
+            }
+
             Toast.makeText(this, "Data saved.", Toast.LENGTH_SHORT).show();
         });
 
         setupTextValue();
+    }
+
+    private void setupRadioGroupAp() {
+        rdBtnDefault = findViewById(R.id.rdbtn_default);
+        rdBtnLainnya = findViewById(R.id.rdbtn_lainnya);
+        rgAp = findViewById(R.id.rg_ap);
+
+        edtBssidAp1.setVisibility(View.GONE);
+        edtBssidAp2.setVisibility(View.GONE);
+        edtBssidAp3.setVisibility(View.GONE);
+
+        rgAp.setOnCheckedChangeListener((group, checkedId) -> {
+
+            if (String.valueOf(checkedId).contains("67")) {
+                edtBssidAp1.setVisibility(View.GONE);
+                edtBssidAp2.setVisibility(View.GONE);
+                edtBssidAp3.setVisibility(View.GONE);
+            } else {
+                edtBssidAp1.setVisibility(View.VISIBLE);
+                edtBssidAp2.setVisibility(View.VISIBLE);
+                edtBssidAp3.setVisibility(View.VISIBLE);
+            }
+
+        });
     }
 
     private void setupTextValue() {
@@ -63,11 +102,6 @@ public class ApDeployActivity extends AppCompatActivity {
         y2.setText(ToolUtil.Storage.getValueString(this, "y2"));
         x3.setText(ToolUtil.Storage.getValueString(this, "x3"));
         y3.setText(ToolUtil.Storage.getValueString(this, "y3"));
-        d1.setText(ToolUtil.Storage.getValueString(this, "d1"));
-        d2.setText(ToolUtil.Storage.getValueString(this, "d2"));
-        d3.setText(ToolUtil.Storage.getValueString(this, "d3"));
-        xPos.setText(ToolUtil.Storage.getValueString(this, "xPos"));
-        yPos.setText(ToolUtil.Storage.getValueString(this, "yPos"));
     }
 
     @Override

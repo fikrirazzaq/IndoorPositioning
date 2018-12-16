@@ -10,8 +10,10 @@ public class AccessPoint {
     private String ch;
     private String venue;
     private String distance;
+    private String rata2;
 
-    public AccessPoint(String name, String level, String freq, String cap, String distance, String ch, String bssid) {
+    public AccessPoint(String name, String level, String freq, String cap,
+            String distance, String ch, String bssid, String rata2) {
         this.name = name;
         this.level = level;
         this.freq = freq;
@@ -19,10 +21,15 @@ public class AccessPoint {
         this.distance = distance;
         this.ch = ch;
         this.bssid = bssid;
+        this.rata2 = rata2;
     }
 
     public String getBssid() {
         return bssid;
+    }
+
+    public String getRata2() {
+        return rata2;
     }
 
     public void setBssid(String bssid) {
@@ -63,6 +70,10 @@ public class AccessPoint {
 
     public String getVenue() {
         return venue;
+    }
+
+    public void setRata2(final String rata2) {
+        this.rata2 = rata2;
     }
 
     public void setVenue(String venue) {

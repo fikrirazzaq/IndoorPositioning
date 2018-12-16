@@ -19,10 +19,9 @@ import android.widget.Toast;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
-import com.juvetic.rssi.util.Formula;
 import com.juvetic.rssi.util.ToolUtil;
+import com.juvetic.rssi.util.formulas.Formula;
 import com.juvetic.rssi.util.helper.AssetsHelper;
-import com.juvetic.rssi.view.InformationDialog;
 import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
 import id.recharge.library.overlay.SVGMapLocationOverlay;
@@ -37,7 +36,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
 
     private List<AccessPoint> accessPointList = new ArrayList<>();
 
-    String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos;
+    String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos, bssid1, bssid2, bssid3;
 
     WifiManager wifiManager;
 
@@ -63,6 +62,9 @@ public class LocationOverlayActivity extends AppCompatActivity {
         d3 = ToolUtil.Storage.getValueString(this, "d3");
         xPos = ToolUtil.Storage.getValueString(this, "xPos");
         yPos = ToolUtil.Storage.getValueString(this, "yPos");
+        bssid1 = ToolUtil.Storage.getValueString(this, "Bssid1");
+        bssid2 = ToolUtil.Storage.getValueString(this, "Bssid2");
+        bssid3 = ToolUtil.Storage.getValueString(this, "Bssid3");
 
         if (x1.equals("") && y1.equals("") && x2.equals("") && y2.equals("")
                 && x3.equals("") && y3.equals("")
@@ -100,42 +102,11 @@ public class LocationOverlayActivity extends AppCompatActivity {
                 locationOverlay.setIndicatorArrowBitmap(
                         BitmapFactory.decodeResource(getResources(), R.mipmap.indicator_arrow));
 
-                double d1 = 0, d2 = 0, d3 = 0;
-                for (AccessPoint a : accessPointList) {
-                    switch (a.getBssid()) {
-                        case "b6:e6:2d:23:84:90":
-                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-                            Log.d("=======d1 ", "onMapLoadComplete: " + d1);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
-                            break;
-                        case "6a:c6:3a:d6:9c:92":
-                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-                            Log.d("=======d2 ", "onMapLoadComplete: " + d2);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
-                            break;
-                        case "be:dd:c2:fe:3b:0b":
-                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-                            Log.d("=======d3 ", "onMapLoadComplete: " + d3);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
-                            break;
-                    }
-                }
-
-                List<Double> xy;
-                xy = Formula.koordinat(
-                        Double.valueOf(x1), Double.valueOf(x1), d1,
-                        Double.valueOf(x2), Double.valueOf(y2), d2,
-                        Double.valueOf(x3), Double.valueOf(y3), d3);
-                Log.d("============", "onMapLoadComplete: " + xy);
-                ToolUtil.Storage
-                        .setValueString(LocationOverlayActivity.this, "xPos", String.valueOf(xy.get(0).floatValue()));
-                ToolUtil.Storage
-                        .setValueString(LocationOverlayActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
-                locationOverlay.setPosition(new PointF(xy.get(0).floatValue(), xy.get(1).floatValue()));
-                locationOverlay.setIndicatorCircleRotateDegree(90);
-                locationOverlay.setMode(SVGMapLocationOverlay.MODE_COMPASS);
-                locationOverlay.setIndicatorArrowRotateDegree(-45);
-                mapView.getOverLays().add(locationOverlay);
+//                locationOverlay.setPosition(new PointF(xy.get(0).floatValue(), xy.get(1).floatValue()));
+//                locationOverlay.setIndicatorCircleRotateDegree(90);
+//                locationOverlay.setMode(SVGMapLocationOverlay.MODE_COMPASS);
+//                locationOverlay.setIndicatorArrowRotateDegree(-45);
+//                mapView.getOverLays().add(locationOverlay);
                 mapView.refresh();
             }
 
@@ -153,6 +124,9 @@ public class LocationOverlayActivity extends AppCompatActivity {
         mapView.getController().setZoomGestureEnabled(false);
     }
 
+    //78:8a:20:d4:a4:d8
+    //78:8a:20:d4:a9:74
+    //78:8a:20:d4:ac:28
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.map_menu, menu);
@@ -212,17 +186,75 @@ public class LocationOverlayActivity extends AppCompatActivity {
                             scanResult.capabilities,
                             Formula.distance(scanResult.level),
                             String.valueOf(level),
-                            scanResult.BSSID);
+                            scanResult.BSSID, null);
                     accessPointList.add(accessPoint);
                 }
+
+                double d1 = 0, d2 = 0, d3 = 0;
+//                for (AccessPoint a : accessPointList) {
+//                    if (a.getBssid().contains(bssid1)) {
+//                        d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+//                        Log.d("=======d1 ", "onMapLoadComplete: " + d1);
+//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
+//                    } else if (a.getBssid().contains(bssid2)) {
+//                        d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+//                        Log.d("=======d2 ", "onMapLoadComplete: " + d2);
+//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
+//                    } else if (a.getBssid().contains(bssid3)) {
+//                        d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+//                        Log.d("=======d3 ", "onMapLoadComplete: " + d3);
+//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
+//                    }
+//                }
+
+                for (AccessPoint a : accessPointList) {
+                    switch (a.getBssid()) {
+                        case "b6:e6:2d:23:84:90":
+                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            Log.d("=======d1 ", "onMapLoadComplete: " + d1);
+                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
+                            break;
+                        case "6a:c6:3a:d6:9c:92":
+                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            Log.d("=======d2 ", "onMapLoadComplete: " + d2);
+                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
+                            break;
+                        case "be:dd:c2:fe:3b:0b":
+                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            Log.d("=======d3 ", "onMapLoadComplete: " + d3);
+                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
+                            break;
+                    }
+                }
+
+                List<Double> xy;
+                xy = Formula.koordinat(
+                        Double.valueOf(x1), Double.valueOf(y1), d1,
+                        Double.valueOf(x2), Double.valueOf(y2), d2,
+                        Double.valueOf(x3), Double.valueOf(y3), d3);
+                Log.d("============", "onMapLoadComplete: " + xy);
+                ToolUtil.Storage
+                        .setValueString(LocationOverlayActivity.this, "xPos", String.valueOf(xy.get(0).floatValue()));
+                ToolUtil.Storage
+                        .setValueString(LocationOverlayActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
+
+                wifiManager.startScan();
+
+                String x = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "xPos");
+                String y = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "yPos");
+
+                mapView.getController()
+                        .sparkAtPoint(new PointF(Float.valueOf(x), Float.valueOf(y)), 15, Color.RED, 1000);
+                mapView.refresh();
             }
 
             Collections.sort(accessPointList, new ApComparator());
 
-            Toast.makeText(getApplicationContext(), "Access Point terdekat: " + accessPointList.size(),
-                    Toast.LENGTH_SHORT).show();
-
         }
+    }
+
+    private void calculateRssiMean() {
+
     }
 
     private void loadData() {
@@ -244,7 +276,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level) + " m",
                         String.valueOf(level),
-                        scanResult.BSSID);
+                        scanResult.BSSID, null);
                 accessPointList.add(accessPoint);
 
             }

@@ -9,7 +9,6 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,27 +17,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
-import com.juvetic.rssi.util.Formula;
 import com.juvetic.rssi.util.RecyclerTouchListener;
-
+import com.juvetic.rssi.util.formulas.Formula;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    SwipeRefreshLayout swipeRefreshLayout;
-
     private List<AccessPoint> accessPointList = new ArrayList<>();
 
     private ApAdapter mAdapter;
 
     private RecyclerView recyclerView;
+
+    private ProgressBar progressBar;
 
     WifiManager wifiManager;
 
@@ -58,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, PERMS_INITIAL, 127);
 
         recyclerView = findViewById(R.id.recycler_view);
+        progressBar = findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
 //        loadData();
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -68,9 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 new RecyclerTouchListener.ClickListener() {
                     @Override
                     public void onClick(View view, int position) {
-                        AccessPoint ap = accessPointList.get(position);
-                        Toast.makeText(getApplicationContext(), ap.getName() + " is selected!", Toast.LENGTH_SHORT)
-                                .show();
+
                     }
 
                     @Override
@@ -78,20 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 }));
-
-//        loadData();
-
-//        swipeRefreshLayout = findViewById(R.id.swp_refresh_ap);
-//
-//        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//
-////                loadData();
-//                swipeRefreshLayout.setRefreshing(false);
-//            }
-//        });
-
     }
 
     @Override
@@ -107,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_main_setting:
 //                loadData();
                 wifiManager.startScan();
+                progressBar.setVisibility(View.VISIBLE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -136,14 +121,59 @@ public class MainActivity extends AppCompatActivity {
 
     class WifiScanReceiver extends BroadcastReceiver {
 
+        int countAp1 = 0;
+
+        int countAp2 = 0;
+
+        int countAp3 = 0;
+
+        int sumAp1 = 0;
+
+        int sumAp2 = 0;
+
+        int sumAp3 = 0;
+
+        double rataAp1 = 0;
+
+        double rataAp2 = 0;
+
+        double rataAp3 = 0;
+
+        int rata2 = 0;
+
         @Override
         public void onReceive(final Context context, final Intent intent) {
+            progressBar.setVisibility(View.GONE);
             accessPointList.clear();
 
             List<ScanResult> scanResultList = wifiManager.getScanResults();
             if (scanResultList != null) {
                 for (ScanResult scanResult : scanResultList) {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
+
+                    switch (scanResult.BSSID) {
+                        case "b6:e6:2d:23:84:90":
+                            countAp1 += 1;
+                            sumAp1 += scanResult.level;
+                            rataAp1 = sumAp1 / countAp1;
+                            rata2 = (int) rataAp1;
+                            break;
+                        case "6a:c6:3a:d6:9c:92":
+                            countAp2 += 1;
+                            sumAp2 += scanResult.level;
+                            rataAp2 = sumAp2 / countAp2;
+                            rata2 = (int) rataAp2;
+                            break;
+                        case "be:dd:c2:fe:3b:0b":
+                            countAp3 += 1;
+                            sumAp3 += scanResult.level;
+                            rataAp3 = sumAp3 / countAp3;
+                            rata2 = (int) rataAp3;
+                            break;
+                        default:
+                            rata2 = 0;
+                            break;
+                    }
 
                     AccessPoint accessPoint = new AccessPoint(
                             scanResult.SSID,
@@ -152,7 +182,8 @@ public class MainActivity extends AppCompatActivity {
                             scanResult.capabilities,
                             Formula.distance(scanResult.level),
                             String.valueOf(level),
-                            scanResult.BSSID);
+                            scanResult.BSSID,
+                            String.valueOf(rata2));
                     accessPointList.add(accessPoint);
                 }
             }
@@ -207,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level),
                         String.valueOf(level),
-                        scanResult.BSSID);
+                        scanResult.BSSID, null);
 //                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
                 accessPointList.add(accessPoint);
 //                }
@@ -219,5 +250,9 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new ApAdapter(accessPointList);
         recyclerView.setAdapter(mAdapter);
         Toast.makeText(this, "Jumlah Access Point: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void calculateRssiMean() {
+
     }
 }

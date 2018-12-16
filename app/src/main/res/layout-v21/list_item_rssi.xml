@@ -107,6 +107,16 @@
                         android:text="freq"
                         android:textAppearance="@android:style/TextAppearance.Material.Caption"
                         tools:targetApi="lollipop" />
+
+                    <TextView
+                        android:id="@+id/tv_rata"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorAccent"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        tools:targetApi="lollipop" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

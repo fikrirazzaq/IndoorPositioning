@@ -18,17 +18,20 @@ public class ToolUtil {
         }
 
         public static void setValueString(Context context, String key, String value) {
-            if (null == value)
+            if (null == value) {
                 return;
+            }
             SharedPreferences settings = context.getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(key, value);
             editor.apply();
         }
+
         public static void setValueBoolean(String key, Boolean value) {
-            if (null == value)
+            if (null == value) {
                 return;
+            }
             SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
@@ -37,8 +40,9 @@ public class ToolUtil {
         }
 
         public static void setValueLong(String key, long value) {
-            if (0 == value)
+            if (0 == value) {
                 return;
+            }
             SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
@@ -57,8 +61,9 @@ public class ToolUtil {
         }
 
         public static void setValueInt(String key, int value) {
-            if (0 == value)
+            if (0 == value) {
                 return;
+            }
             SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
@@ -89,6 +94,7 @@ public class ToolUtil {
         public static Boolean getValueBoolean(String key) {
             return getValueBoolean(key, false);
         }
+
         public static Boolean getValueBoolean(String key, Boolean defaultValue) {
             SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);

@@ -1,6 +1,5 @@
 package com.juvetic.rssi.ui;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import java.util.List;
@@ -40,6 +37,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.freq.setText(accessPoint.getFreq());
         holder.distance.setText(accessPoint.getDistance());
         holder.bssid.setText(accessPoint.getBssid());
+        holder.rata.setText(String.format("RSSI Mean: %s", accessPoint.getRata2()));
 
         switch (accessPoint.getCh()) {
             case "0":
@@ -85,7 +83,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap;
+        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap, rata;
 
         ImageView img;
 
@@ -99,6 +97,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             distance = view.findViewById(R.id.tx_distance);
             bssid = view.findViewById(R.id.tv_bssid);
             ap = view.findViewById(R.id.tv_ap);
+            rata = view.findViewById(R.id.tv_rata);
         }
     }
 }

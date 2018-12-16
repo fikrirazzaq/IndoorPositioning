@@ -1,4 +1,4 @@
-package com.juvetic.rssi.util;
+package com.juvetic.rssi.util.formulas;
 
 import java.util.ArrayList;
 import java.util.List;
