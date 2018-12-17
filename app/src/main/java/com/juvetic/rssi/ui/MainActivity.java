@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,8 @@ import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.RecyclerTouchListener;
+import com.juvetic.rssi.util.formulas.APAlgorithmData;
+import com.juvetic.rssi.util.formulas.EKFAlgorithmData;
 import com.juvetic.rssi.util.formulas.Formula;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,6 +144,20 @@ public class MainActivity extends AppCompatActivity {
 
         int rata2 = 0;
 
+        double[] xAp1, xAp2, xAp3 = null;
+
+        /* Set covariance matrix P */
+        double[][] PAp1, PAp2, PAp3 = new double[][]{
+                {10, 0},
+                {0, 10}
+        };
+
+        List<APAlgorithmData> algorithmInputDataListAp1 = new ArrayList<>();
+        List<APAlgorithmData> algorithmInputDataListAp2 = new ArrayList<>();
+        List<APAlgorithmData> algorithmInputDataListAp3 = new ArrayList<>();
+
+        EKFAlgorithmData mEKFDataAp1;
+
         @Override
         public void onReceive(final Context context, final Intent intent) {
             progressBar.setVisibility(View.GONE);
@@ -152,19 +169,33 @@ public class MainActivity extends AppCompatActivity {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
 
                     switch (scanResult.BSSID) {
-                        case "b6:e6:2d:23:84:90":
+                        //b6:e6:2d:23:84:90
+                        case "60:de:f3:03:60:30": //AP1
+                            //Hitung akumulasi rata2 RSSI AP1
                             countAp1 += 1;
                             sumAp1 += scanResult.level;
                             rataAp1 = sumAp1 / countAp1;
                             rata2 = (int) rataAp1;
+
+                            //Kalman
+                            xAp1 = new double[]{rataAp1};
+                            algorithmInputDataListAp1.clear();
+                            algorithmInputDataListAp1.add(new APAlgorithmData(scanResult.level)); //RSSI
+                            mEKFDataAp1 = new EKFAlgorithmData(xAp1, new double[]{10});
+                            mEKFDataAp1 = mEKFDataAp1.applyEKFAlgorithm(algorithmInputDataListAp1,
+                                    mEKFDataAp1);
+                            Log.d("EKD", "Nilai EKF RSSI before " + scanResult.level);
+                            Log.d("EKD", "Nilai EKF RSSI after  " + mEKFDataAp1.x.data[0]);
                             break;
                         case "6a:c6:3a:d6:9c:92":
+                            //Hitung akumulasi rata2 RSSI AP2
                             countAp2 += 1;
                             sumAp2 += scanResult.level;
                             rataAp2 = sumAp2 / countAp2;
                             rata2 = (int) rataAp2;
                             break;
                         case "be:dd:c2:fe:3b:0b":
+                            //Hitung akumulasi rata2 RSSI AP3
                             countAp3 += 1;
                             sumAp3 += scanResult.level;
                             rataAp3 = sumAp3 / countAp3;
@@ -172,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         default:
                             rata2 = 0;
+                            mEKFDataAp1.x = null;
                             break;
                     }
 
@@ -183,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
                             Formula.distance(scanResult.level),
                             String.valueOf(level),
                             scanResult.BSSID,
-                            String.valueOf(rata2));
+                            String.valueOf(rata2),
+                            mEKFDataAp1.x);
                     accessPointList.add(accessPoint);
                 }
             }
@@ -238,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level),
                         String.valueOf(level),
-                        scanResult.BSSID, null);
+                        scanResult.BSSID, null, null);
 //                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
                 accessPointList.add(accessPoint);
 //                }

@@ -170,6 +170,20 @@ public class LocationOverlayActivity extends AppCompatActivity {
 
     class WifiScanReceiver extends BroadcastReceiver {
 
+        int countAp1 = 0;
+        int countAp2 = 0;
+        int countAp3 = 0;
+
+        int sumAp1 = 0;
+        int sumAp2 = 0;
+        int sumAp3 = 0;
+
+        double rataAp1 = 0;
+        double rataAp2 = 0;
+        double rataAp3 = 0;
+
+        int rata2 = 0;
+
         @Override
         public void onReceive(final Context context, final Intent intent) {
             accessPointList.clear();
@@ -179,6 +193,30 @@ public class LocationOverlayActivity extends AppCompatActivity {
                 for (ScanResult scanResult : scanResultList) {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
 
+                    switch (scanResult.BSSID) {
+                        case "b6:e6:2d:23:84:90":
+                            countAp1 += 1;
+                            sumAp1 += scanResult.level;
+                            rataAp1 = sumAp1 / countAp1;
+                            rata2 = (int) rataAp1;
+                            break;
+                        case "6a:c6:3a:d6:9c:92":
+                            countAp2 += 1;
+                            sumAp2 += scanResult.level;
+                            rataAp2 = sumAp2 / countAp2;
+                            rata2 = (int) rataAp2;
+                            break;
+                        case "be:dd:c2:fe:3b:0b":
+                            countAp3 += 1;
+                            sumAp3 += scanResult.level;
+                            rataAp3 = sumAp3 / countAp3;
+                            rata2 = (int) rataAp3;
+                            break;
+                        default:
+                            rata2 = 0;
+                            break;
+                    }
+
                     AccessPoint accessPoint = new AccessPoint(
                             scanResult.SSID,
                             String.valueOf(scanResult.level) + " dBm",
@@ -186,7 +224,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
                             scanResult.capabilities,
                             Formula.distance(scanResult.level),
                             String.valueOf(level),
-                            scanResult.BSSID, null);
+                            scanResult.BSSID, null, null);
                     accessPointList.add(accessPoint);
                 }
 
@@ -276,7 +314,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level) + " m",
                         String.valueOf(level),
-                        scanResult.BSSID, null);
+                        scanResult.BSSID, null, null);
                 accessPointList.add(accessPoint);
 
             }

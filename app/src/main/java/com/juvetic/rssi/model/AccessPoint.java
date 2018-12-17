@@ -1,5 +1,7 @@
 package com.juvetic.rssi.model;
 
+import org.ejml.data.DenseMatrix64F;
+
 public class AccessPoint {
 
     private String bssid;
@@ -11,9 +13,10 @@ public class AccessPoint {
     private String venue;
     private String distance;
     private String rata2;
+    private DenseMatrix64F ekf;
 
     public AccessPoint(String name, String level, String freq, String cap,
-            String distance, String ch, String bssid, String rata2) {
+            String distance, String ch, String bssid, String rata2, DenseMatrix64F ekf) {
         this.name = name;
         this.level = level;
         this.freq = freq;
@@ -22,10 +25,15 @@ public class AccessPoint {
         this.ch = ch;
         this.bssid = bssid;
         this.rata2 = rata2;
+        this.ekf = ekf;
     }
 
     public String getBssid() {
         return bssid;
+    }
+
+    public DenseMatrix64F getEkf() {
+        return ekf;
     }
 
     public String getRata2() {

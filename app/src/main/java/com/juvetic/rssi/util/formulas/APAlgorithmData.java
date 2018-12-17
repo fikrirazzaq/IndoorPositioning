@@ -11,6 +11,9 @@ public class APAlgorithmData {
     public int RSS;
     public Point coordinatesAP;
 
+    public APAlgorithmData(final int RSS) {
+        this.RSS = RSS;
+    }
 
     public APAlgorithmData(String bssid, double distance, int RSS, Point coordinatesAP){
         this.bssid = bssid;

@@ -36,7 +36,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.cap.setText(accessPoint.getCap());
         holder.freq.setText(accessPoint.getFreq());
         holder.distance.setText(accessPoint.getDistance());
-        holder.bssid.setText(accessPoint.getBssid());
+        holder.bssid.setText(""+accessPoint.getEkf());
         holder.rata.setText(String.format("RSSI Mean: %s", accessPoint.getRata2()));
 
         switch (accessPoint.getCh()) {

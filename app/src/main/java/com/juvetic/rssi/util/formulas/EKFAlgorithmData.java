@@ -7,6 +7,7 @@ import static org.ejml.ops.CommonOps.multTransB;
 import static org.ejml.ops.CommonOps.subtract;
 import static org.ejml.ops.CommonOps.subtractEquals;
 
+import android.util.Log;
 import java.util.List;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.factory.LinearSolverFactory;
@@ -51,9 +52,9 @@ public class EKFAlgorithmData {
      * Constructors
      */
 
-    public EKFAlgorithmData(double[] x, double[][] P) {
+    public EKFAlgorithmData(double[] x, double[] P) {
         this.x = new DenseMatrix64F(x.length, 1, false, x);
-        this.P = new DenseMatrix64F(P);
+        this.P = new DenseMatrix64F(P.length, 1, false, P);
     }
 
     public EKFAlgorithmData(DenseMatrix64F x, DenseMatrix64F P) {
@@ -78,7 +79,7 @@ public class EKFAlgorithmData {
         /** Creation of parameters x, P, F, H, Q and R */
         creationAPrioriEstimates(initialEstimates);
 
-        creationPredeclaredVariables();
+        creationPredeclaredVariables(algorithmInputDataList, initialEstimates);
 
         creationJacobianMatrices(algorithmInputDataList);
 
@@ -102,10 +103,14 @@ public class EKFAlgorithmData {
 
     }
 
-    private void creationPredeclaredVariables() {
+    private void creationPredeclaredVariables(List<APAlgorithmData> algorithmInputDataList,
+            EKFAlgorithmData initialEstimates) {
         a = new DenseMatrix64F(dimenX, 1);
         b = new DenseMatrix64F(dimenX, dimenX);
+
         y = new DenseMatrix64F(dimenZ, 1);
+        y.add(0, 0, algorithmInputDataList.get(0).RSS);
+
         z = new DenseMatrix64F(dimenZ, 1);
 
         S = new DenseMatrix64F(dimenZ, dimenZ);
@@ -119,6 +124,7 @@ public class EKFAlgorithmData {
 
         // Computed distance between nominal point x and AP coordinates
         computed_dist = new double[dimenZ];
+        computed_dist = new double[] {initialEstimates.x.data[0]};
     }
 
     private void creationJacobianMatrices(List<APAlgorithmData> algorithmInputDataList) {
@@ -181,7 +187,9 @@ public class EKFAlgorithmData {
         }
         solver.invert(S_inv);
         multTransA(H, S_inv, d);
+        Log.d("JON F KENEDY ", "NILAI K before " + K);
         mult(P, d, K);
+        Log.d("JON F KENEDY ", "NILAI K after " + K);
 
         /*
          *  z = y - h_x
@@ -191,6 +199,9 @@ public class EKFAlgorithmData {
         // Transform double[] (computed_dist) to DenseMatrix64F (h_x)
         DenseMatrix64F h_x = new DenseMatrix64F(dimenZ, 1, false, computed_dist);
         subtract(y, h_x, z);
+        Log.d("EKD", "NILAI h_x " + h_x.data[0]);
+        Log.d("EKD", "NILAI x - " + x.data[0]);
+        Log.d("EKD", "NILAI y - " + y.data[0]);
 
         // x = x + Kz
         mult(K, z, a);
