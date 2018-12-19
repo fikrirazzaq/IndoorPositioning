@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         List<Double> rssiList = new ArrayList<>();
         List<Double> kfAlgo = new ArrayList<>();
+        double variansi = 0;
 
         int i = 0;
 
@@ -171,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
                     switch (scanResult.BSSID) {
                         //b6:e6:2d:23:84:90
                         //60:de:f3:03:60:30 SBK Group
-                        //
-                        case "78:8a:20:d4:ac:28": //AP1
+                        //78:8a:20:d4:ac:28 Cocowork
+                        case "60:de:f3:03:60:30": //AP1
                             //Hitung akumulasi rata2 RSSI AP1
 //                            countAp1 += 1;
 //                            sumAp1 += scanResult.level;
@@ -191,19 +192,26 @@ public class MainActivity extends AppCompatActivity {
 
                             // Kalman v2 https://gist.github.com/fikrirazzaq/d38197afe7bb1a4292681fe398e4cddb
                             rssiList.add((double) scanResult.level);
-
-                            kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, 10, 0.008);
+                            if (i == 0) {
+                                kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, 1, 0.008);
+                                variansi = kfAlgo.get(4);
+                            } else {
+                                kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, variansi, 0.008);
+                                variansi = kfAlgo.get(4);
+                            }
                             i += 1;
                             Log.d("EKADO", "Iterasi - " + i);
                             Log.d("EKADO", "mean                      : " + kfAlgo.get(0));
                             Log.d("EKADO", "kalmanGain                : " + kfAlgo.get(1));
                             Log.d("EKADO", "inputValues.get(0) - mean : " + kfAlgo.get(2));
-                            Log.d("EKADO", "----------------------------------------");
+                            Log.d("EKADO", "----");
                             Log.d("EKADO", "Hasil RSSI                : " + kfAlgo.get(3));
                             Log.d("EKADO", "Variansi                  : " + kfAlgo.get(4));
-                            Log.d("EKADO", "----------------------------------------");
+                            Log.d("EKADO", "----");
                             Log.d("EKADO", "Actual RSSI               : " + scanResult.level);
+                            Log.d("EKADO", "Variansi Input (ke i-1)   : " + kfAlgo.get(5));
                             Log.d("EKADO", "----------------------------------------");
+                            Log.d("EKADO", "");
 
                             break;
                         case "6a:c6:3a:d6:9c:92":

@@ -15,6 +15,7 @@ public class KalmanFilter {
     public static List<Double> applyKFAlgorithm(List<Double> inputValues, double variance, double noise) {
         Double kalmanGain, mean;
         mean = Utils.mean(inputValues);
+        double inputVar = variance;
         variance = variance + noise;
 
         Double measurementNoise = Utils.variance(inputValues);
@@ -27,6 +28,7 @@ public class KalmanFilter {
         returnList.add(inputValues.get(0) - mean);
         returnList.add(mean + kalmanGain * (inputValues.get(0) - mean));
         returnList.add(variance);
+        returnList.add(inputVar);
 
         return returnList;
     }
