@@ -1,6 +1,5 @@
 package com.juvetic.rssi.util.formulas;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class Utils {
@@ -13,7 +12,7 @@ final class Utils {
         for (double num : values) {
             sum += Math.pow(num - mean, 2);
         }
-        return sum / (values.size() - 1);
+        return sum / (values.size());
     }
 
     static Double mean(List<Double> values) {
