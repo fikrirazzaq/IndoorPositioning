@@ -36,8 +36,9 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.cap.setText(accessPoint.getCap());
         holder.freq.setText(accessPoint.getFreq());
         holder.distance.setText(accessPoint.getDistance());
-        holder.bssid.setText(""+accessPoint.getEkf());
-        holder.rata.setText(String.format("RSSI Mean: %s", accessPoint.getRata2()));
+        holder.bssid.setText(accessPoint.getBssid());
+        holder.kalmanRssi.setText(accessPoint.getRssiKalman());
+        holder.kalmanDistance.setText(accessPoint.getDistanceKalman());
 
         switch (accessPoint.getCh()) {
             case "0":
@@ -83,7 +84,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap, rata;
+        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap, rata, kalmanRssi, kalmanDistance;
 
         ImageView img;
 
@@ -97,7 +98,8 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             distance = view.findViewById(R.id.tx_distance);
             bssid = view.findViewById(R.id.tv_bssid);
             ap = view.findViewById(R.id.tv_ap);
-            rata = view.findViewById(R.id.tv_rata);
+            kalmanDistance = view.findViewById(R.id.tx_distance_kalman);
+            kalmanRssi = view.findViewById(R.id.tv_rssi_kalman);
         }
     }
 }

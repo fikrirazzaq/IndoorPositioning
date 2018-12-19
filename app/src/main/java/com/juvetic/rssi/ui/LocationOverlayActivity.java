@@ -21,6 +21,7 @@ import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.ToolUtil;
 import com.juvetic.rssi.util.formulas.Formula;
+import com.juvetic.rssi.util.formulas.KalmanFilter;
 import com.juvetic.rssi.util.helper.AssetsHelper;
 import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
@@ -170,19 +171,15 @@ public class LocationOverlayActivity extends AppCompatActivity {
 
     class WifiScanReceiver extends BroadcastReceiver {
 
-        int countAp1 = 0;
-        int countAp2 = 0;
-        int countAp3 = 0;
+        List<Double> rssiListAp1, rssiListAp2, rssiListAp3 = new ArrayList<>();
 
-        int sumAp1 = 0;
-        int sumAp2 = 0;
-        int sumAp3 = 0;
+        List<Double> kfAlgoAp1, kfAlgoAp2, kfAlgoAp3 = new ArrayList<>();
 
-        double rataAp1 = 0;
-        double rataAp2 = 0;
-        double rataAp3 = 0;
+        AccessPoint accessPoint;
 
-        int rata2 = 0;
+        double variansiAp1, variansiAp2, variansiAp3 = 0;
+
+        int iAp1, iAp2, iAp3 = 0;
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -194,38 +191,91 @@ public class LocationOverlayActivity extends AppCompatActivity {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
 
                     switch (scanResult.BSSID) {
-                        case "b6:e6:2d:23:84:90":
-                            countAp1 += 1;
-                            sumAp1 += scanResult.level;
-                            rataAp1 = sumAp1 / countAp1;
-                            rata2 = (int) rataAp1;
+                        //b6:e6:2d:23:84:90
+                        //60:de:f3:03:60:30 SBK Group
+                        //78:8a:20:d4:ac:28 Cocowork
+                        case "60:de:f3:03:60:30": //AP1
+                            rssiListAp1.add((double) scanResult.level);
+                            if (iAp1 == 0) {
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, 1, 0.008);
+                                variansiAp1 = kfAlgoAp1.get(4);
+                            } else {
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, variansiAp1, 0.008);
+                                variansiAp1 = kfAlgoAp1.get(4);
+                            }
+                            iAp1 += 1;
+
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance((double) scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp1.get(3)),
+                                    Formula.distance(kfAlgoAp1.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            countAp2 += 1;
-                            sumAp2 += scanResult.level;
-                            rataAp2 = sumAp2 / countAp2;
-                            rata2 = (int) rataAp2;
+                            rssiListAp2.add((double) scanResult.level);
+                            if (iAp2 == 0) {
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, 1, 0.008);
+                                variansiAp2 = kfAlgoAp2.get(4);
+                            } else {
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, variansiAp2, 0.008);
+                                variansiAp2 = kfAlgoAp2.get(4);
+                            }
+                            iAp2 += 1;
+
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp2.get(3)),
+                                    Formula.distance(kfAlgoAp2.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            countAp3 += 1;
-                            sumAp3 += scanResult.level;
-                            rataAp3 = sumAp3 / countAp3;
-                            rata2 = (int) rataAp3;
+                            rssiListAp3.add((double) scanResult.level);
+                            if (iAp3 == 0) {
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, 1, 0.008);
+                                variansiAp3 = kfAlgoAp3.get(4);
+                            } else {
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, variansiAp3, 0.008);
+                                variansiAp3 = kfAlgoAp3.get(4);
+                            }
+                            iAp3 += 1;
+
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp3.get(3)),
+                                    Formula.distance(kfAlgoAp3.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         default:
-                            rata2 = 0;
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    "0", "0");
+                            accessPointList.add(accessPoint);
                             break;
                     }
-
-                    AccessPoint accessPoint = new AccessPoint(
-                            scanResult.SSID,
-                            String.valueOf(scanResult.level) + " dBm",
-                            String.valueOf(scanResult.frequency) + " MHz",
-                            scanResult.capabilities,
-                            Formula.distance(scanResult.level),
-                            String.valueOf(level),
-                            scanResult.BSSID, null, null);
-                    accessPointList.add(accessPoint);
                 }
 
                 double d1 = 0, d2 = 0, d3 = 0;
@@ -248,17 +298,17 @@ public class LocationOverlayActivity extends AppCompatActivity {
                 for (AccessPoint a : accessPointList) {
                     switch (a.getBssid()) {
                         case "b6:e6:2d:23:84:90":
-                            d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            d1 = Double.parseDouble(a.getDistanceKalman());
                             Log.d("=======d1 ", "onMapLoadComplete: " + d1);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            d2 = Double.parseDouble(a.getDistanceKalman());
                             Log.d("=======d2 ", "onMapLoadComplete: " + d2);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
+                            d3 = Double.parseDouble(a.getDistanceKalman());
                             Log.d("=======d3 ", "onMapLoadComplete: " + d3);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
                             break;
@@ -314,7 +364,7 @@ public class LocationOverlayActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level) + " m",
                         String.valueOf(level),
-                        scanResult.BSSID, null, null);
+                        scanResult.BSSID, "0", "0");
                 accessPointList.add(accessPoint);
 
             }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Formula {
 
-    public static String distance(int rssi) {
+    public static String distance(double rssi) {
         int d0 = 1;
         int p = -40;
         int n = 2;

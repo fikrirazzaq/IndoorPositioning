@@ -30,17 +30,18 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tv_ap"
-                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AP1"
+                        android:textColor="#70c153"
                         android:textStyle="bold"
-                        android:textColor="#70c153"/>
+                        android:visibility="gone" />
+
                     <ImageView
                         android:id="@+id/img_wifi"
                         android:layout_width="30dp"
@@ -52,15 +53,35 @@
                 </LinearLayout>
 
 
-                <TextView
-                    android:id="@+id/tx_distance"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="6dp"
-                    android:text="20"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tx_distance"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="6dp"
+                        android:gravity="center"
+                        android:text="20"
+                        android:textColor="@color/colorAccent"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tx_distance_kalman"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tx_distance"
+                        android:layout_gravity="center"
+                        android:layout_margin="6dp"
+                        android:gravity="center"
+                        android:text="20"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -90,7 +111,17 @@
                         android:layout_height="wrap_content"
                         android:text="rssi"
                         android:textAppearance="@android:style/TextAppearance.Material.Caption"
-                        tools:targetApi="lollipop" />
+                        tools:targetApi="lollipop"
+                        android:textColor="@color/colorAccent"/>
+
+                    <TextView
+                        android:id="@+id/tv_rssi_kalman"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="rssi"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        tools:targetApi="lollipop"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                     <TextView
                         android:id="@+id/tv_cap"
@@ -108,15 +139,6 @@
                         android:textAppearance="@android:style/TextAppearance.Material.Caption"
                         tools:targetApi="lollipop" />
 
-                    <TextView
-                        android:id="@+id/tv_rata"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorAccent"
-                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
-                        tools:targetApi="lollipop" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

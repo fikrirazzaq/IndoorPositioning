@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,8 +23,6 @@ import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.RecyclerTouchListener;
-import com.juvetic.rssi.util.formulas.APAlgorithmData;
-import com.juvetic.rssi.util.formulas.EKFAlgorithmData;
 import com.juvetic.rssi.util.formulas.Formula;
 import com.juvetic.rssi.util.formulas.KalmanFilter;
 import java.util.ArrayList;
@@ -125,39 +122,15 @@ public class MainActivity extends AppCompatActivity {
 
     class WifiScanReceiver extends BroadcastReceiver {
 
-        int countAp1 = 0;
-        int countAp2 = 0;
-        int countAp3 = 0;
+        List<Double> rssiListAp1, rssiListAp2, rssiListAp3 = new ArrayList<>();
 
-        int sumAp1 = 0;
-        int sumAp2 = 0;
-        int sumAp3 = 0;
+        List<Double> kfAlgoAp1, kfAlgoAp2, kfAlgoAp3 = new ArrayList<>();
 
-        double rataAp1 = 0;
-        double rataAp2 = 0;
-        double rataAp3 = 0;
+        AccessPoint accessPoint;
 
-        int rata2 = 0;
+        double variansiAp1, variansiAp2, variansiAp3 = 0;
 
-        double[] xAp1, xAp2, xAp3 = null;
-
-        /* Set covariance matrix P */
-        double[][] PAp1, PAp2, PAp3 = new double[][]{
-                {10, 0},
-                {0, 10}
-        };
-
-        List<APAlgorithmData> algorithmInputDataListAp1 = new ArrayList<>();
-        List<APAlgorithmData> algorithmInputDataListAp2 = new ArrayList<>();
-        List<APAlgorithmData> algorithmInputDataListAp3 = new ArrayList<>();
-
-        EKFAlgorithmData mEKFDataAp1;
-
-        List<Double> rssiList = new ArrayList<>();
-        List<Double> kfAlgo = new ArrayList<>();
-        double variansi = 0;
-
-        int i = 0;
+        int iAp1, iAp2, iAp3 = 0;
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -174,76 +147,87 @@ public class MainActivity extends AppCompatActivity {
                         //60:de:f3:03:60:30 SBK Group
                         //78:8a:20:d4:ac:28 Cocowork
                         case "60:de:f3:03:60:30": //AP1
-                            //Hitung akumulasi rata2 RSSI AP1
-//                            countAp1 += 1;
-//                            sumAp1 += scanResult.level;
-//                            rataAp1 = sumAp1 / countAp1;
-//                            rata2 = (int) rataAp1;
-
-                            // Kalman v1 https://gist.github.com/fikrirazzaq/09e15b722dc877943823b0bc93efc8a5
-//                            xAp1 = new double[]{rataAp1};
-//                            algorithmInputDataListAp1.clear();
-//                            algorithmInputDataListAp1.add(new APAlgorithmData(scanResult.level)); //RSSI
-//                            mEKFDataAp1 = new EKFAlgorithmData(xAp1, new double[]{10});
-//                            mEKFDataAp1 = mEKFDataAp1.applyEKFAlgorithm(algorithmInputDataListAp1,
-//                                    mEKFDataAp1);
-//                            Log.d("EKD", "Nilai EKF RSSI before " + scanResult.level);
-//                            Log.d("EKD", "Nilai EKF RSSI after  " + mEKFDataAp1.x.data[0]);
-
-                            // Kalman v2 https://gist.github.com/fikrirazzaq/d38197afe7bb1a4292681fe398e4cddb
-                            rssiList.add((double) scanResult.level);
-                            if (i == 0) {
-                                kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, 1, 0.008);
-                                variansi = kfAlgo.get(4);
+                            rssiListAp1.add((double) scanResult.level);
+                            if (iAp1 == 0) {
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, 1, 0.008);
+                                variansiAp1 = kfAlgoAp1.get(4);
                             } else {
-                                kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, variansi, 0.008);
-                                variansi = kfAlgo.get(4);
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, variansiAp1, 0.008);
+                                variansiAp1 = kfAlgoAp1.get(4);
                             }
-                            i += 1;
-                            Log.d("EKADO", "Iterasi - " + i);
-                            Log.d("EKADO", "mean                      : " + kfAlgo.get(0));
-                            Log.d("EKADO", "kalmanGain                : " + kfAlgo.get(1));
-                            Log.d("EKADO", "inputValues.get(0) - mean : " + kfAlgo.get(2));
-                            Log.d("EKADO", "----");
-                            Log.d("EKADO", "Hasil RSSI                : " + kfAlgo.get(3));
-                            Log.d("EKADO", "Variansi                  : " + kfAlgo.get(4));
-                            Log.d("EKADO", "----");
-                            Log.d("EKADO", "Actual RSSI               : " + scanResult.level);
-                            Log.d("EKADO", "Variansi Input (ke i-1)   : " + kfAlgo.get(5));
-                            Log.d("EKADO", "----------------------------------------");
-                            Log.d("EKADO", "");
+                            iAp1 += 1;
 
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance((double) scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp1.get(3))  + " dBm",
+                                    Formula.distance(kfAlgoAp1.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            //Hitung akumulasi rata2 RSSI AP2
-                            countAp2 += 1;
-                            sumAp2 += scanResult.level;
-                            rataAp2 = sumAp2 / countAp2;
-                            rata2 = (int) rataAp2;
+                            rssiListAp2.add((double) scanResult.level);
+                            if (iAp2 == 0) {
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, 1, 0.008);
+                                variansiAp2 = kfAlgoAp2.get(4);
+                            } else {
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, variansiAp2, 0.008);
+                                variansiAp2 = kfAlgoAp2.get(4);
+                            }
+                            iAp2 += 1;
+
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp2.get(3))  + " dBm",
+                                    Formula.distance(kfAlgoAp2.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            //Hitung akumulasi rata2 RSSI AP3
-                            countAp3 += 1;
-                            sumAp3 += scanResult.level;
-                            rataAp3 = sumAp3 / countAp3;
-                            rata2 = (int) rataAp3;
+                            rssiListAp3.add((double) scanResult.level);
+                            if (iAp3 == 0) {
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, 1, 0.008);
+                                variansiAp3 = kfAlgoAp3.get(4);
+                            } else {
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, variansiAp3, 0.008);
+                                variansiAp3 = kfAlgoAp3.get(4);
+                            }
+                            iAp3 += 1;
+
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    String.valueOf(kfAlgoAp3.get(3)) + " dBm",
+                                    Formula.distance(kfAlgoAp3.get(3)));
+                            accessPointList.add(accessPoint);
                             break;
                         default:
-                            rata2 = 0;
+                            accessPoint = new AccessPoint(
+                                    scanResult.SSID,
+                                    String.valueOf(scanResult.level) + " dBm",
+                                    String.valueOf(scanResult.frequency) + " MHz",
+                                    scanResult.capabilities,
+                                    Formula.distance(scanResult.level),
+                                    String.valueOf(level),
+                                    scanResult.BSSID,
+                                    "0", "0");
+                            accessPointList.add(accessPoint);
                             break;
                     }
-
-                    AccessPoint accessPoint = new AccessPoint(
-                            scanResult.SSID,
-                            String.valueOf(scanResult.level) + " dBm",
-                            String.valueOf(scanResult.frequency) + " MHz",
-                            scanResult.capabilities,
-                            Formula.distance(scanResult.level),
-                            String.valueOf(level),
-                            scanResult.BSSID,
-                            String.valueOf(rata2),
-                            null);
-                    accessPointList.add(accessPoint);
                 }
             }
 
@@ -296,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                         scanResult.capabilities,
                         Formula.distance(scanResult.level),
                         String.valueOf(level),
-                        scanResult.BSSID, null, null);
+                        scanResult.BSSID, "0", "0");
 //                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
                 accessPointList.add(accessPoint);
 //                }
