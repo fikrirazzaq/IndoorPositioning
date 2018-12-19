@@ -27,6 +27,7 @@ import com.juvetic.rssi.util.RecyclerTouchListener;
 import com.juvetic.rssi.util.formulas.APAlgorithmData;
 import com.juvetic.rssi.util.formulas.EKFAlgorithmData;
 import com.juvetic.rssi.util.formulas.Formula;
+import com.juvetic.rssi.util.formulas.KalmanFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,21 +126,15 @@ public class MainActivity extends AppCompatActivity {
     class WifiScanReceiver extends BroadcastReceiver {
 
         int countAp1 = 0;
-
         int countAp2 = 0;
-
         int countAp3 = 0;
 
         int sumAp1 = 0;
-
         int sumAp2 = 0;
-
         int sumAp3 = 0;
 
         double rataAp1 = 0;
-
         double rataAp2 = 0;
-
         double rataAp3 = 0;
 
         int rata2 = 0;
@@ -158,6 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
         EKFAlgorithmData mEKFDataAp1;
 
+        List<Double> rssiList = new ArrayList<>();
+        List<Double> kfAlgo = new ArrayList<>();
+
+        int i = 0;
+
         @Override
         public void onReceive(final Context context, final Intent intent) {
             progressBar.setVisibility(View.GONE);
@@ -170,22 +170,41 @@ public class MainActivity extends AppCompatActivity {
 
                     switch (scanResult.BSSID) {
                         //b6:e6:2d:23:84:90
-                        case "60:de:f3:03:60:30": //AP1
+                        //60:de:f3:03:60:30 SBK Group
+                        //
+                        case "78:8a:20:d4:ac:28": //AP1
                             //Hitung akumulasi rata2 RSSI AP1
-                            countAp1 += 1;
-                            sumAp1 += scanResult.level;
-                            rataAp1 = sumAp1 / countAp1;
-                            rata2 = (int) rataAp1;
+//                            countAp1 += 1;
+//                            sumAp1 += scanResult.level;
+//                            rataAp1 = sumAp1 / countAp1;
+//                            rata2 = (int) rataAp1;
 
-                            //Kalman
-                            xAp1 = new double[]{rataAp1};
-                            algorithmInputDataListAp1.clear();
-                            algorithmInputDataListAp1.add(new APAlgorithmData(scanResult.level)); //RSSI
-                            mEKFDataAp1 = new EKFAlgorithmData(xAp1, new double[]{10});
-                            mEKFDataAp1 = mEKFDataAp1.applyEKFAlgorithm(algorithmInputDataListAp1,
-                                    mEKFDataAp1);
-                            Log.d("EKD", "Nilai EKF RSSI before " + scanResult.level);
-                            Log.d("EKD", "Nilai EKF RSSI after  " + mEKFDataAp1.x.data[0]);
+                            // Kalman v1 https://gist.github.com/fikrirazzaq/09e15b722dc877943823b0bc93efc8a5
+//                            xAp1 = new double[]{rataAp1};
+//                            algorithmInputDataListAp1.clear();
+//                            algorithmInputDataListAp1.add(new APAlgorithmData(scanResult.level)); //RSSI
+//                            mEKFDataAp1 = new EKFAlgorithmData(xAp1, new double[]{10});
+//                            mEKFDataAp1 = mEKFDataAp1.applyEKFAlgorithm(algorithmInputDataListAp1,
+//                                    mEKFDataAp1);
+//                            Log.d("EKD", "Nilai EKF RSSI before " + scanResult.level);
+//                            Log.d("EKD", "Nilai EKF RSSI after  " + mEKFDataAp1.x.data[0]);
+
+                            // Kalman v2 https://gist.github.com/fikrirazzaq/d38197afe7bb1a4292681fe398e4cddb
+                            rssiList.add((double) scanResult.level);
+
+                            kfAlgo = KalmanFilter.applyKFAlgorithm(rssiList, 10, 0.008);
+                            i += 1;
+                            Log.d("EKADO", "Iterasi - " + i);
+                            Log.d("EKADO", "mean                      : " + kfAlgo.get(0));
+                            Log.d("EKADO", "kalmanGain                : " + kfAlgo.get(1));
+                            Log.d("EKADO", "inputValues.get(0) - mean : " + kfAlgo.get(2));
+                            Log.d("EKADO", "----------------------------------------");
+                            Log.d("EKADO", "Hasil RSSI                : " + kfAlgo.get(3));
+                            Log.d("EKADO", "Variansi                  : " + kfAlgo.get(4));
+                            Log.d("EKADO", "----------------------------------------");
+                            Log.d("EKADO", "Actual RSSI               : " + scanResult.level);
+                            Log.d("EKADO", "----------------------------------------");
+
                             break;
                         case "6a:c6:3a:d6:9c:92":
                             //Hitung akumulasi rata2 RSSI AP2
@@ -203,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         default:
                             rata2 = 0;
-                            mEKFDataAp1.x = null;
                             break;
                     }
 
@@ -216,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                             String.valueOf(level),
                             scanResult.BSSID,
                             String.valueOf(rata2),
-                            mEKFDataAp1.x);
+                            null);
                     accessPointList.add(accessPoint);
                 }
             }
@@ -233,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
             runLayoutAnimation(recyclerView);
             Toast.makeText(getApplicationContext(), "Jumlah Access Point: " + accessPointList.size(),
                     Toast.LENGTH_SHORT).show();
-
         }
     }
 
