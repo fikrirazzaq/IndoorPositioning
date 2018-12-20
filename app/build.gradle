@@ -38,6 +38,8 @@ dependencies {
     implementation project(path: ':library')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+    implementation 'com.google.code.gson:gson:2.8.5'
+
 //    Kalman Libs - https://github.com/raserma/EKFIndoorTracker
     implementation files('ejml-v0.26-libs/EJML-core-0.26.jar')
     implementation files('ejml-v0.26-libs/EJML-core-0.26-sources.jar')

@@ -60,23 +60,23 @@ public class ToolUtil {
             return settings.getLong(key, defaultValue);
         }
 
-        public static void setValueInt(String key, int value) {
+        public static void setValueInt(Context context, String key, int value) {
             if (0 == value) {
                 return;
             }
-            SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
+            SharedPreferences settings = context.getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
             editor.putInt(key, value);
             editor.apply();
         }
 
-        public static int getValueInt(String key) {
-            return getValueInt(key, 0);
+        public static int getValueInt(Context context, String key) {
+            return getValueInt(context, key, 0);
         }
 
-        public static int getValueInt(String key, int defaultValue) {
-            SharedPreferences settings = PageUtil.getInstance().getApplicationContext().getSharedPreferences(
+        public static int getValueInt(Context context, String key, int defaultValue) {
+            SharedPreferences settings = context.getApplicationContext().getSharedPreferences(
                     BASE_PREFS_NAME, 0);
             return settings.getInt(key, defaultValue);
         }

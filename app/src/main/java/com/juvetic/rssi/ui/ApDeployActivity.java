@@ -24,7 +24,7 @@ public class ApDeployActivity extends AppCompatActivity {
 
     RadioGroup rgAp;
 
-    Button btnSave;
+    Button btnSave, btnResetKf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +43,7 @@ public class ApDeployActivity extends AppCompatActivity {
         edtBssidAp1 = findViewById(R.id.edt_ap1);
         edtBssidAp2 = findViewById(R.id.edt_ap2);
         edtBssidAp3 = findViewById(R.id.edt_ap3);
+        btnResetKf = findViewById(R.id.btn_reset_kf);
 
         setupRadioGroupAp();
 
@@ -66,6 +67,30 @@ public class ApDeployActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Data saved.", Toast.LENGTH_SHORT).show();
+        });
+
+        btnResetKf.setOnClickListener(view -> {
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api1",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api2",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api3",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueInt(this,"i_kalman_ap1", 0);
+            ToolUtil.Storage.setValueInt(this,"i_kalman_ap2", 0);
+            ToolUtil.Storage.setValueInt(this,"i_kalman_ap3", 0);
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap1",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap2",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap3",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap1",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap2",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap3",
+                    String.valueOf(0));
         });
 
         setupTextValue();
