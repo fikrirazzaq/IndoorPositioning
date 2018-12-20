@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                                     Formula.distance(scanResult.level),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    "0", "0");
+                                    "0 dBm", "0");
                             accessPointList.add(accessPoint);
                             break;
                     }
