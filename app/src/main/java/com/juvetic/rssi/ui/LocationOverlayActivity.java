@@ -171,15 +171,23 @@ public class LocationOverlayActivity extends AppCompatActivity {
 
     class WifiScanReceiver extends BroadcastReceiver {
 
-        List<Double> rssiListAp1, rssiListAp2, rssiListAp3 = new ArrayList<>();
+        List<Double> rssiListAp1 = new ArrayList<>();
+        List<Double> rssiListAp2 = new ArrayList<>();
+        List<Double> rssiListAp3 = new ArrayList<>();
 
-        List<Double> kfAlgoAp1, kfAlgoAp2, kfAlgoAp3 = new ArrayList<>();
+        List<Double> kfAlgoAp1 = new ArrayList<>();
+        List<Double> kfAlgoAp2 = new ArrayList<>();
+        List<Double> kfAlgoAp3 = new ArrayList<>();
 
         AccessPoint accessPoint;
 
-        double variansiAp1, variansiAp2, variansiAp3 = 0;
+        double variansiAp1 = 0;
+        double variansiAp2 = 0;
+        double variansiAp3 = 0;
 
-        int iAp1, iAp2, iAp3 = 0;
+        int iAp1 = 0;
+        int iAp2 = 0;
+        int iAp3 = 0;
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
