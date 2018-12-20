@@ -223,7 +223,6 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorAccent"
             android:text="Reset KF Calculation"
-            android:visibility="gone"
             android:textColor="@color/white"
             tools:targetApi="lollipop" />
 

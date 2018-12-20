@@ -15,8 +15,9 @@ import android.widget.Toast;
 
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.util.ToolUtil;
+import java.util.ArrayList;
 
-public class ApDeployActivity extends AppCompatActivity {
+public class ApDeployActivity extends BaseActivity {
 
     EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3;
 
@@ -91,6 +92,11 @@ public class ApDeployActivity extends AppCompatActivity {
                     String.valueOf(0));
             ToolUtil.Storage.setValueString(this, "dist_kalman_ap3",
                     String.valueOf(0));
+            tinydb.putListDouble("rssi_kalman_list_ap1", new ArrayList<>());
+            tinydb.putListDouble("rssi_kalman_list_ap2", new ArrayList<>());
+            tinydb.putListDouble("rssi_kalman_list_ap3", new ArrayList<>());
+
+            Toast.makeText(this, "KF Calculation has been reset.", Toast.LENGTH_SHORT).show();
         });
 
         setupTextValue();

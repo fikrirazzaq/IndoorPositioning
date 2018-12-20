@@ -333,55 +333,19 @@ public class LocationOverlayActivity extends BaseActivity {
                     }
                 }
 
-                double d1 = 0, d2 = 0, d3 = 0;
-//                for (AccessPoint a : accessPointList) {
-//                    if (a.getBssid().contains(bssid1)) {
-//                        d1 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-//                        Log.d("=======d1 ", "onMapLoadComplete: " + d1);
-//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
-//                    } else if (a.getBssid().contains(bssid2)) {
-//                        d2 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-//                        Log.d("=======d2 ", "onMapLoadComplete: " + d2);
-//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
-//                    } else if (a.getBssid().contains(bssid3)) {
-//                        d3 = Double.parseDouble(a.getDistance().substring(0, a.getDistance().length() - 2));
-//                        Log.d("=======d3 ", "onMapLoadComplete: " + d3);
-//                        ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
-//                    }
-//                }
-
-                for (AccessPoint a : accessPointList) {
-                    switch (a.getBssid()) {
-                        case "b6:e6:2d:23:84:90":
-                            d1 = Double.parseDouble(a.getDistanceKalman());
-                            Log.d("=======d1 ", "onMapLoadComplete: " + d1);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d1", String.valueOf(d1));
-                            break;
-                        case "6a:c6:3a:d6:9c:92":
-                            d2 = Double.parseDouble(a.getDistanceKalman());
-                            Log.d("=======d2 ", "onMapLoadComplete: " + d2);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d2", String.valueOf(d2));
-                            break;
-                        case "be:dd:c2:fe:3b:0b":
-                            d3 = Double.parseDouble(a.getDistanceKalman());
-                            Log.d("=======d3 ", "onMapLoadComplete: " + d3);
-                            ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "d3", String.valueOf(d3));
-                            break;
-                    }
-                }
-
                 List<Double> xy;
                 xy = Formula.koordinat(
-                        Double.valueOf(x1), Double.valueOf(y1), d1,
-                        Double.valueOf(x2), Double.valueOf(y2), d2,
-                        Double.valueOf(x3), Double.valueOf(y3), d3);
+                        Double.valueOf(x1), Double.valueOf(y1), Double.parseDouble(ToolUtil.Storage.getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap1")),
+                        Double.valueOf(x2), Double.valueOf(y2), Double.parseDouble(ToolUtil.Storage.getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap2")),
+                        Double.valueOf(x3), Double.valueOf(y3), Double.parseDouble(ToolUtil.Storage.getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap3")));
                 Log.d("============", "onMapLoadComplete: " + xy);
                 ToolUtil.Storage
                         .setValueString(LocationOverlayActivity.this, "xPos", String.valueOf(xy.get(0).floatValue()));
                 ToolUtil.Storage
                         .setValueString(LocationOverlayActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
-
-                wifiManager.startScan();
 
                 String x = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "xPos");
                 String y = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "yPos");
@@ -393,6 +357,7 @@ public class LocationOverlayActivity extends BaseActivity {
 
             Collections.sort(accessPointList, new ApComparator());
 
+            wifiManager.startScan();
         }
     }
 

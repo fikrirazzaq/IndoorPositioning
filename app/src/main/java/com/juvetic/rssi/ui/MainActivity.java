@@ -293,6 +293,8 @@ public class MainActivity extends BaseActivity {
             runLayoutAnimation(recyclerView);
             Toast.makeText(getApplicationContext(), "Jumlah Access Point: " + accessPointList.size(),
                     Toast.LENGTH_SHORT).show();
+
+            wifiManager.startScan();
         }
     }
 
