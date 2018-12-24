@@ -1,12 +1,12 @@
 package com.juvetic.rssi.util.formulas;
 
-import java.util.List;
+import java.util.Queue;
 
 final class Utils {
 
     /* Statistical support methods */
 
-    static Double variance(List<Double> values) {
+    static Double variance(Queue<Double> values) {
         Double sum = 0.0;
         Double mean = mean(values);
         for (double num : values) {
@@ -15,11 +15,11 @@ final class Utils {
         return sum / (values.size());
     }
 
-    static Double mean(List<Double> values) {
+    static Double mean(Queue<Double> values) {
         return sum(values) / values.size();
     }
 
-    private static Double sum(List<Double> values) {
+    private static Double sum(Queue<Double> values) {
         Double sum = 0.0;
         for (Double num : values) {
             sum += num;

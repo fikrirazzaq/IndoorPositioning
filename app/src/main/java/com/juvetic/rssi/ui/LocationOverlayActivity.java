@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import com.google.common.collect.EvictingQueue;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
@@ -26,8 +27,10 @@ import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
 import id.recharge.library.overlay.SVGMapLocationOverlay;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 
 
 public class LocationOverlayActivity extends BaseActivity {
@@ -42,11 +45,11 @@ public class LocationOverlayActivity extends BaseActivity {
 
     WifiScanReceiver wifiReceiver;
 
-    ArrayList<Double> rssiListAp1 = new ArrayList<>();
+    Queue<Double> rssiListAp1 = EvictingQueue.create(10);
 
-    ArrayList<Double> rssiListAp2 = new ArrayList<>();
+    Queue<Double> rssiListAp2 = EvictingQueue.create(10);
 
-    ArrayList<Double> rssiListAp3 = new ArrayList<>();
+    Queue<Double> rssiListAp3 = EvictingQueue.create(10);
 
     ArrayList<Double> kfAlgoAp1 = new ArrayList<>();
 
@@ -217,43 +220,49 @@ public class LocationOverlayActivity extends BaseActivity {
                         //60:de:f3:03:60:30 SBK Group
                         //78:8a:20:d4:ac:28 Cocowork
                         case "b6:e6:2d:23:84:90": //AP1
-                            rssiListAp1 = tinydb.getListDouble("rssi_kalman_list_ap1");
+                            rssiListAp1 = tinydb.getQueueDouble("rssi_kalman_list_ap1");
                             rssiListAp1.add((double) scanResult.level);
-                            tinydb.putListDouble("rssi_kalman_list_ap1", rssiListAp1);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap1", rssiListAp1);
 
                             if (iAp1 == 0) {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, 1, 0.008);
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, 1, Double.parseDouble
+                                        (ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "noise")));
                                 variansiAp1 = kfAlgoAp1.get(4);
                             } else {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, variansiAp1, 0.008);
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, variansiAp1, Double.parseDouble
+                                        (ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "noise")));
                                 variansiAp1 = kfAlgoAp1.get(4);
                             }
                             iAp1 += 1;
 
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "rssi_kalman_ap1",
                                     String.valueOf(kfAlgoAp1.get(3)));
-                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this,"i_kalman_ap1", iAp1);
+                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this, "i_kalman_ap1",
+                                    iAp1);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "var_kalman_ap1",
                                     String.valueOf(variansiAp1));
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "dist_kalman_ap1",
-                                    Formula.distance(kfAlgoAp1.get(3)));
+                                    Formula.distance(kfAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
                                     scanResult.SSID,
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance((double) scanResult.level),
+                                    Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp1.get(3)),
-                                    Formula.distance(kfAlgoAp1.get(3)));
+                                    Formula.distance(kfAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
                             accessPointList.add(accessPoint);
                             break;
-                        case "6a:c6:3a:d6:9c:92":
-                            rssiListAp2 = tinydb.getListDouble("rssi_kalman_list_ap2");
+                        case "6a:c6:3a:d6:9c:92": //2
+                            rssiListAp2 = tinydb.getQueueDouble("rssi_kalman_list_ap2");
                             rssiListAp2.add((double) scanResult.level);
-                            tinydb.putListDouble("rssi_kalman_list_ap2", rssiListAp2);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiListAp2);
 
                             if (iAp2 == 0) {
                                 kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, 1, 0.008);
@@ -266,28 +275,32 @@ public class LocationOverlayActivity extends BaseActivity {
 
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "rssi_kalman_ap2",
                                     String.valueOf(kfAlgoAp2.get(3)));
-                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this,"i_kalman_ap2", iAp2);
+                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this, "i_kalman_ap2",
+                                    iAp2);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "var_kalman_ap2",
                                     String.valueOf(variansiAp2));
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "dist_kalman_ap2",
-                                    Formula.distance(kfAlgoAp2.get(3)));
+                                    Formula.distance(kfAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
                                     scanResult.SSID,
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level),
+                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp2.get(3)),
-                                    Formula.distance(kfAlgoAp2.get(3)));
+                                    Formula.distance(kfAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
                             accessPointList.add(accessPoint);
                             break;
-                        case "be:dd:c2:fe:3b:0b":
-                            rssiListAp3 = tinydb.getListDouble("rssi_kalman_list_ap3");
+                        case "be:dd:c2:fe:3b:0b": //AP3
+                            rssiListAp3 = tinydb.getQueueDouble("rssi_kalman_list_ap3");
                             rssiListAp3.add((double) scanResult.level);
-                            tinydb.putListDouble("rssi_kalman_list_ap3", rssiListAp3);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap3", rssiListAp3);
 
                             if (iAp3 == 0) {
                                 kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, 1, 0.008);
@@ -300,22 +313,26 @@ public class LocationOverlayActivity extends BaseActivity {
 
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "rssi_kalman_ap3",
                                     String.valueOf(kfAlgoAp3.get(3)));
-                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this,"i_kalman_ap3", iAp3);
+                            ToolUtil.Storage.setValueInt(LocationOverlayActivity.this, "i_kalman_ap3",
+                                    iAp3);
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "var_kalman_ap3",
                                     String.valueOf(variansiAp3));
                             ToolUtil.Storage.setValueString(LocationOverlayActivity.this, "dist_kalman_ap3",
-                                    Formula.distance(kfAlgoAp3.get(3)));
+                                    Formula.distance(kfAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
                                     scanResult.SSID,
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level),
+                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp3.get(3)),
-                                    Formula.distance(kfAlgoAp3.get(3)));
+                                    Formula.distance(kfAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))));
                             accessPointList.add(accessPoint);
                             break;
                         default:
@@ -324,7 +341,8 @@ public class LocationOverlayActivity extends BaseActivity {
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level),
+                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(LocationOverlayActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     "0", "0");
@@ -332,6 +350,23 @@ public class LocationOverlayActivity extends BaseActivity {
                             break;
                     }
                 }
+
+                Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: RSSI_1 " + Arrays.toString
+                        (rssiListAp1.toArray()));
+                Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: RSSI_2 " + Arrays.toString
+                        (rssiListAp2.toArray()));
+                Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: RSSI_3 " + Arrays.toString
+                        (rssiListAp3.toArray()));
+
+                Log.d(LocationOverlayActivity.class.getSimpleName(),
+                        "onReceive: D1 " + ToolUtil.Storage.getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap1"));
+                Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: D2 " + ToolUtil.Storage
+                        .getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap2"));
+                Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: D3 " + ToolUtil.Storage
+                        .getValueString
+                                (LocationOverlayActivity.this, "dist_kalman_ap3"));
 
                 List<Double> xy;
                 xy = Formula.koordinat(
@@ -341,11 +376,15 @@ public class LocationOverlayActivity extends BaseActivity {
                                 (LocationOverlayActivity.this, "dist_kalman_ap2")),
                         Double.valueOf(x3), Double.valueOf(y3), Double.parseDouble(ToolUtil.Storage.getValueString
                                 (LocationOverlayActivity.this, "dist_kalman_ap3")));
-                Log.d("============", "onMapLoadComplete: " + xy);
                 ToolUtil.Storage
                         .setValueString(LocationOverlayActivity.this, "xPos", String.valueOf(xy.get(0).floatValue()));
                 ToolUtil.Storage
                         .setValueString(LocationOverlayActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
+
+                Log.d(LocationOverlayActivity.class.getSimpleName(),
+                        "onReceive: X " + String.valueOf(xy.get(0).floatValue()));
+                Log.d(LocationOverlayActivity.class.getSimpleName(),
+                        "onReceive: Y " + String.valueOf(xy.get(1).floatValue()));
 
                 String x = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "xPos");
                 String y = ToolUtil.Storage.getValueString(LocationOverlayActivity.this, "yPos");
@@ -382,7 +421,8 @@ public class LocationOverlayActivity extends BaseActivity {
                         String.valueOf(scanResult.level) + " dBm",
                         String.valueOf(scanResult.frequency) + " MHz",
                         scanResult.capabilities,
-                        Formula.distance(scanResult.level) + " m",
+                        Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                .getValueString(LocationOverlayActivity.this, "n"))) + " m",
                         String.valueOf(level),
                         scanResult.BSSID, "0", "0");
                 accessPointList.add(accessPoint);

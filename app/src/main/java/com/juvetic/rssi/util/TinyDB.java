@@ -21,16 +21,6 @@
 
 package com.juvetic.rssi.util;
 
-import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
-//import com.google.gson.Gson;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -40,6 +30,17 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import com.google.common.collect.EvictingQueue;
+import com.google.gson.Gson;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Queue;
+
+//import com.google.gson.Gson;
 
 
 public class TinyDB {
@@ -266,6 +267,17 @@ public class TinyDB {
         return newList;
     }
 
+    public Queue<Double> getQueueDouble(String key) {
+        String[] myList = TextUtils.split(preferences.getString(key, ""), "‚‗‚");
+        ArrayList<String> arrayToList = new ArrayList<String>(Arrays.asList(myList));
+        Queue<Double> newList = EvictingQueue.create(10);
+
+        for (String item : arrayToList)
+            newList.add(Double.parseDouble(item));
+
+        return newList;
+    }
+
     /**
      * Get parsed ArrayList of Integers from SharedPreferences at 'key'
      * @param key SharedPreferences key
@@ -426,6 +438,17 @@ public class TinyDB {
      * @param doubleList ArrayList of Double to be added
      */
     public void putListDouble(String key, ArrayList<Double> doubleList) {
+        checkForNullKey(key);
+        Double[] myDoubleList = doubleList.toArray(new Double[doubleList.size()]);
+        preferences.edit().putString(key, TextUtils.join("‚‗‚", myDoubleList)).apply();
+    }
+
+    /**
+     * Put ArrayList of Double into SharedPreferences with 'key' and save
+     * @param key SharedPreferences key
+     * @param doubleList ArrayList of Double to be added
+     */
+    public void putQueueDouble(String key, Queue<Double> doubleList) {
         checkForNullKey(key);
         Double[] myDoubleList = doubleList.toArray(new Double[doubleList.size()]);
         preferences.edit().putString(key, TextUtils.join("‚‗‚", myDoubleList)).apply();

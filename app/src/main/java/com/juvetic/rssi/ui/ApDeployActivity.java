@@ -1,25 +1,20 @@
 package com.juvetic.rssi.ui;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.common.collect.EvictingQueue;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.util.ToolUtil;
-import java.util.ArrayList;
+import java.util.Queue;
 
 public class ApDeployActivity extends BaseActivity {
 
-    EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3;
+    EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3, edtNoiseQ, edtN;
 
     RadioButton rdBtnDefault, rdBtnLainnya;
 
@@ -45,6 +40,8 @@ public class ApDeployActivity extends BaseActivity {
         edtBssidAp2 = findViewById(R.id.edt_ap2);
         edtBssidAp3 = findViewById(R.id.edt_ap3);
         btnResetKf = findViewById(R.id.btn_reset_kf);
+        edtNoiseQ = findViewById(R.id.edt_noise);
+        edtN = findViewById(R.id.edt_n);
 
         setupRadioGroupAp();
 
@@ -56,6 +53,8 @@ public class ApDeployActivity extends BaseActivity {
             ToolUtil.Storage.setValueString(this, "y2", y2.getText().toString());
             ToolUtil.Storage.setValueString(this, "x3", x3.getText().toString());
             ToolUtil.Storage.setValueString(this, "y3", y3.getText().toString());
+            ToolUtil.Storage.setValueString(this, "noise", edtNoiseQ.getText().toString());
+            ToolUtil.Storage.setValueString(this, "n", edtN.getText().toString());
 
             if (String.valueOf(rgAp.getCheckedRadioButtonId()).contains("67")) {
                 ToolUtil.Storage.setValueString(this, "Bssid1", "b6:e6:2d:23:84:90");
@@ -92,9 +91,14 @@ public class ApDeployActivity extends BaseActivity {
                     String.valueOf(0));
             ToolUtil.Storage.setValueString(this, "dist_kalman_ap3",
                     String.valueOf(0));
-            tinydb.putListDouble("rssi_kalman_list_ap1", new ArrayList<>());
-            tinydb.putListDouble("rssi_kalman_list_ap2", new ArrayList<>());
-            tinydb.putListDouble("rssi_kalman_list_ap3", new ArrayList<>());
+
+            Queue<Double> rssiListAp1 = EvictingQueue.create(10);
+            Queue<Double> rssiListAp2 = EvictingQueue.create(10);
+            Queue<Double> rssiListAp3 = EvictingQueue.create(10);
+
+            tinydb.putQueueDouble("rssi_kalman_list_ap1", rssiListAp1);
+            tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiListAp2);
+            tinydb.putQueueDouble("rssi_kalman_list_ap3", rssiListAp3);
 
             Toast.makeText(this, "KF Calculation has been reset.", Toast.LENGTH_SHORT).show();
         });
@@ -133,6 +137,8 @@ public class ApDeployActivity extends BaseActivity {
         y2.setText(ToolUtil.Storage.getValueString(this, "y2"));
         x3.setText(ToolUtil.Storage.getValueString(this, "x3"));
         y3.setText(ToolUtil.Storage.getValueString(this, "y3"));
+        edtNoiseQ.setText(ToolUtil.Storage.getValueString(this, "noise"));
+        edtN.setText(ToolUtil.Storage.getValueString(this, "n"));
     }
 
     @Override
