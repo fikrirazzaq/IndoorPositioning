@@ -150,7 +150,7 @@ public class LocationOverlayActivity extends BaseActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v5.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v11.svg"));
 //        Toast.makeText(this, x1 + " " + x2 + " " + x3 + " " + y1 + " " + y2 + " " + y3, Toast.LENGTH_SHORT).show();
 
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
