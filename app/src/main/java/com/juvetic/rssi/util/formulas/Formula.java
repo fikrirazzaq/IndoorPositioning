@@ -5,10 +5,9 @@ import java.util.List;
 
 public class Formula {
 
-    public static String distance(double rssi, double x) {
+    public static String distance(double rssi, double n) {
         int d0 = 1;
         int p = -40;
-        double n = x;
         return String.format("%.2f", d0 * (Math.pow(10, (p - rssi) / (float) (n * 10))));
     }
 

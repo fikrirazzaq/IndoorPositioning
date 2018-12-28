@@ -1,7 +1,7 @@
 package com.juvetic.rssi.util.formulas;
 
 import android.util.Log;
-import com.juvetic.rssi.ui.LocationOverlayActivity;
+import com.juvetic.rssi.ui.MapKalmanActivity;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -23,8 +23,9 @@ public class KalmanFilter {
         variance = (1 - kalmanGain) * variance;
 
         ArrayList<Double> fromQueue = new ArrayList(inputValues);
-        Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
-        Log.d(LocationOverlayActivity.class.getSimpleName(), "onReceive: First Value " + fromQueue.get(fromQueue.size()-1));
+        Log.d(MapKalmanActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
+        Log.d(MapKalmanActivity.class.getSimpleName(),
+                "onReceive: First Value " + fromQueue.get(fromQueue.size() - 1));
 
         ArrayList<Double> returnList = new ArrayList<>();
         returnList.add(mean);

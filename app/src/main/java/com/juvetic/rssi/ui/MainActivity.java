@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 import com.google.common.collect.EvictingQueue;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
@@ -37,7 +37,7 @@ public class MainActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
 
-    private ProgressBar progressBar;
+    private ProgressBar progressBar, progressBarTop;
 
     WifiManager wifiManager;
 
@@ -78,8 +78,8 @@ public class MainActivity extends BaseActivity {
         setTitle("List Wifi Strength");
 
         recyclerView = findViewById(R.id.recycler_view);
-        progressBar = findViewById(R.id.progress_bar);
-        progressBar.setVisibility(View.VISIBLE);
+        progressBarTop = findViewById(R.id.progress_bar_top);
+        progressBarTop.setVisibility(View.VISIBLE);
 //        loadData();
 
         variansiAp1 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1"));
@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity {
             case R.id.menu_main_setting:
 //                loadData();
                 wifiManager.startScan();
-                progressBar.setVisibility(View.VISIBLE);
+                progressBarTop.setVisibility(View.VISIBLE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -153,7 +153,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            progressBar.setVisibility(View.GONE);
+            progressBarTop.setVisibility(View.INVISIBLE);
             accessPointList.clear();
 
             List<ScanResult> scanResultList = wifiManager.getScanResults();
@@ -303,11 +303,16 @@ public class MainActivity extends BaseActivity {
             mAdapter = new ApAdapter(accessPointList);
             recyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
-            runLayoutAnimation(recyclerView);
-            Toast.makeText(getApplicationContext(), "Jumlah Access Point: " + accessPointList.size(),
-                    Toast.LENGTH_SHORT).show();
+//            runLayoutAnimation(recyclerView);
+//            Toast.makeText(getApplicationContext(), "Jumlah Access Point: " + accessPointList.size(),
+//                    Toast.LENGTH_SHORT).show();
 
-            wifiManager.startScan();
+            // Refresh after 2 seconds
+            Handler handler = new Handler();
+            handler.postDelayed(() -> {
+                wifiManager.startScan();
+                progressBarTop.setVisibility(View.VISIBLE);
+            }, 2000);
         }
     }
 
@@ -357,7 +362,7 @@ public class MainActivity extends BaseActivity {
 
         mAdapter = new ApAdapter(accessPointList);
         recyclerView.setAdapter(mAdapter);
-        Toast.makeText(this, "Jumlah Access Point: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Jumlah Access Point: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
     }
 
     private void calculateRssiMean() {

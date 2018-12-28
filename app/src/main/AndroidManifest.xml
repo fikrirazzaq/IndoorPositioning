@@ -3,11 +3,8 @@
     package="com.juvetic.rssi">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
@@ -21,11 +18,15 @@
         <activity android:name=".ui.DashboardActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.LocationOverlayActivity" />
+        <activity android:name=".ui.MapKalmanActivity" />
         <activity android:name=".ui.ApDeployActivity" />
+        <activity android:name=".ui.MapActivity"></activity>
     </application>
+
 </manifest>
