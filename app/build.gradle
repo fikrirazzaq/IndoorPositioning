@@ -44,6 +44,9 @@ dependencies {
     // Guava
     implementation group: 'com.google.guava', name: 'guava', version: '24.1-jre'
 
+    // POI
+    implementation "com.github.SUPERCILEX.poi-android:poi:3.17"
+
 //    Kalman Libs - https://github.com/raserma/EKFIndoorTracker
     implementation files('ejml-v0.26-libs/EJML-core-0.26.jar')
     implementation files('ejml-v0.26-libs/EJML-core-0.26-sources.jar')

@@ -113,11 +113,11 @@ public class MapKalmanActivity extends BaseActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v11.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v4.svg"));
 
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 75, Color.BLACK, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 75, Color.GREEN, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 75, Color.BLUE, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 10, Color.RED, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 10, Color.GREEN, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 10, Color.BLUE, 1000);
         mapView.getController().setScrollGestureEnabled(false);
         mapView.getController().setZoomGestureEnabled(false);
 

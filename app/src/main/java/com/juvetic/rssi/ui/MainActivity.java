@@ -7,15 +7,19 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 import com.google.common.collect.EvictingQueue;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
@@ -24,12 +28,24 @@ import com.juvetic.rssi.util.RecyclerTouchListener;
 import com.juvetic.rssi.util.ToolUtil;
 import com.juvetic.rssi.util.formulas.Formula;
 import com.juvetic.rssi.util.formulas.KalmanFilter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 public class MainActivity extends BaseActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    Parcelable recyclerViewState;
 
     private List<AccessPoint> accessPointList = new ArrayList<>();
 
@@ -43,17 +59,31 @@ public class MainActivity extends BaseActivity {
 
     WifiScanReceiver wifiReceiver;
 
-    Queue<Double> rssiListAp1 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp1 = EvictingQueue.create(10);
 
-    Queue<Double> rssiListAp2 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp2 = EvictingQueue.create(10);
 
-    Queue<Double> rssiListAp3 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp3 = EvictingQueue.create(10);
+
+    ArrayList<Double> rssiListAp1 = new ArrayList<>();
+
+    ArrayList<Double> rssiListAp2 = new ArrayList<>();
+
+    ArrayList<Double> rssiListAp3 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp1 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp3 = new ArrayList<>();
 
     ArrayList<Double> kfAlgoAp1 = new ArrayList<>();
 
     ArrayList<Double> kfAlgoAp2 = new ArrayList<>();
 
     ArrayList<Double> kfAlgoAp3 = new ArrayList<>();
+
+    ArrayList<Double> elseList = new ArrayList<>();
 
     AccessPoint accessPoint;
 
@@ -68,6 +98,8 @@ public class MainActivity extends BaseActivity {
     int iAp2 = 0;
 
     int iAp3 = 0;
+
+    int refreshCount = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,9 +117,9 @@ public class MainActivity extends BaseActivity {
         variansiAp1 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1"));
         variansiAp2 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2"));
         variansiAp3 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3"));
-        iAp1 = ToolUtil.Storage.getValueInt(this,"i_kalman_ap1");
-        iAp2 = ToolUtil.Storage.getValueInt(this,"i_kalman_ap2");
-        iAp3 = ToolUtil.Storage.getValueInt(this,"i_kalman_ap3");
+        iAp1 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap1");
+        iAp2 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap2");
+        iAp3 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap3");
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiScanReceiver();
@@ -121,6 +153,12 @@ public class MainActivity extends BaseActivity {
 //                loadData();
                 wifiManager.startScan();
                 progressBarTop.setVisibility(View.VISIBLE);
+                return true;
+            case R.id.menu_main_export:
+                saveExcelFile(MainActivity.this, "List RSSI.xls",
+                        rssiListAp1, rssiKFListAp1,
+                        rssiListAp2, rssiKFListAp2,
+                        rssiListAp3, rssiKFListAp3);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -166,22 +204,25 @@ public class MainActivity extends BaseActivity {
                         //60:de:f3:03:60:30 SBK Group
                         //78:8a:20:d4:ac:28 Cocowork
                         case "b6:e6:2d:23:84:90": //AP1
-                            rssiListAp1 = tinydb.getQueueDouble("rssi_kalman_list_ap1");
-                            rssiListAp1.add((double) scanResult.level);
-                            tinydb.putQueueDouble("rssi_kalman_list_ap1", rssiListAp1);
+                            rssiKFQueueAp1 = tinydb.getQueueDouble("rssi_kalman_list_ap1");
+                            rssiKFQueueAp1.add((double) scanResult.level);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap1", rssiKFQueueAp1);
 
                             if (iAp1 == 0) {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, 1, 0.008);
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp1, 1, 0.008);
                                 variansiAp1 = kfAlgoAp1.get(4);
                             } else {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiListAp1, variansiAp1, 0.008);
+                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp1, variansiAp1, 0.008);
                                 variansiAp1 = kfAlgoAp1.get(4);
                             }
                             iAp1 += 1;
 
+                            rssiListAp1.add((double) scanResult.level);
+                            rssiKFListAp1.add(kfAlgoAp1.get(3));
+
                             ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap1",
                                     String.valueOf(kfAlgoAp1.get(3)));
-                            ToolUtil.Storage.setValueInt(MainActivity.this,"i_kalman_ap1",
+                            ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap1",
                                     iAp1);
                             ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap1",
                                     String.valueOf(variansiAp1));
@@ -204,22 +245,25 @@ public class MainActivity extends BaseActivity {
                             accessPointList.add(accessPoint);
                             break;
                         case "6a:c6:3a:d6:9c:92":
-                            rssiListAp2 = tinydb.getQueueDouble("rssi_kalman_list_ap2");
-                            rssiListAp2.add((double) scanResult.level);
-                            tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiListAp2);
+                            rssiKFQueueAp2 = tinydb.getQueueDouble("rssi_kalman_list_ap2");
+                            rssiKFQueueAp2.add((double) scanResult.level);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiKFQueueAp2);
 
                             if (iAp2 == 0) {
-                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, 1, 0.008);
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp2, 1, 0.008);
                                 variansiAp2 = kfAlgoAp2.get(4);
                             } else {
-                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiListAp2, variansiAp2, 0.008);
+                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp2, variansiAp2, 0.008);
                                 variansiAp2 = kfAlgoAp2.get(4);
                             }
                             iAp2 += 1;
 
+                            rssiListAp2.add((double) scanResult.level);
+                            rssiKFListAp2.add(kfAlgoAp2.get(3));
+
                             ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap2",
                                     String.valueOf(kfAlgoAp2.get(3)));
-                            ToolUtil.Storage.setValueInt(MainActivity.this,"i_kalman_ap2", iAp2);
+                            ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap2", iAp2);
                             ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap2",
                                     String.valueOf(variansiAp2));
                             ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap2",
@@ -241,22 +285,25 @@ public class MainActivity extends BaseActivity {
                             accessPointList.add(accessPoint);
                             break;
                         case "be:dd:c2:fe:3b:0b":
-                            rssiListAp3 = tinydb.getQueueDouble("rssi_kalman_list_ap3");
-                            rssiListAp3.add((double) scanResult.level);
-                            tinydb.putQueueDouble("rssi_kalman_list_ap3", rssiListAp3);
+                            rssiKFQueueAp3 = tinydb.getQueueDouble("rssi_kalman_list_ap3");
+                            rssiKFQueueAp3.add((double) scanResult.level);
+                            tinydb.putQueueDouble("rssi_kalman_list_ap3", rssiKFQueueAp3);
 
                             if (iAp3 == 0) {
-                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, 1, 0.008);
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp3, 1, 0.008);
                                 variansiAp3 = kfAlgoAp3.get(4);
                             } else {
-                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiListAp3, variansiAp3, 0.008);
+                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp3, variansiAp3, 0.008);
                                 variansiAp3 = kfAlgoAp3.get(4);
                             }
                             iAp3 += 1;
 
+                            rssiListAp3.add((double) scanResult.level);
+                            rssiKFListAp3.add(kfAlgoAp3.get(3));
+
                             ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap3",
                                     String.valueOf(kfAlgoAp3.get(3)));
-                            ToolUtil.Storage.setValueInt(MainActivity.this,"i_kalman_ap3", iAp3);
+                            ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap3", iAp3);
                             ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap3",
                                     String.valueOf(variansiAp3));
                             ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap3",
@@ -289,6 +336,8 @@ public class MainActivity extends BaseActivity {
                                     scanResult.BSSID,
                                     "0 dBm", "0");
                             accessPointList.add(accessPoint);
+
+                            elseList.add((double) scanResult.level);
                             break;
                     }
                 }
@@ -303,16 +352,22 @@ public class MainActivity extends BaseActivity {
             mAdapter = new ApAdapter(accessPointList);
             recyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
-//            runLayoutAnimation(recyclerView);
-//            Toast.makeText(getApplicationContext(), "Jumlah Access Point: " + accessPointList.size(),
-//                    Toast.LENGTH_SHORT).show();
+            // Save state
+            recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
 
-            // Refresh after 2 seconds
+            // Restore state
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+//            runLayoutAnimation(recyclerView);
+            Toast.makeText(getApplicationContext(), "Refresh count: " + refreshCount,
+                    Toast.LENGTH_SHORT).show();
+            refreshCount++;
+
+            // Refresh after 1 seconds
             Handler handler = new Handler();
             handler.postDelayed(() -> {
                 wifiManager.startScan();
                 progressBarTop.setVisibility(View.VISIBLE);
-            }, 2000);
+            }, 1000);
         }
     }
 
@@ -327,45 +382,125 @@ public class MainActivity extends BaseActivity {
         recyclerView.scheduleLayoutAnimation();
     }
 
-    private void loadData() {
-        accessPointList.clear();
+    private static boolean saveExcelFile(Context context, String fileName,
+            ArrayList<Double> rssiListAp1, ArrayList<Double> rssiKFListAp1,
+            ArrayList<Double> rssiListAp2, ArrayList<Double> rssiKFListAp2,
+            ArrayList<Double> rssiListAp3, ArrayList<Double> rssiKFListAp3) {
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setHasFixedSize(true);
-
-        wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        List<ScanResult> wifiList = null;
-        if (wifiManager != null) {
-            wifiList = wifiManager.getScanResults();
-        }
-        if (wifiList != null) {
-            for (ScanResult scanResult : wifiList) {
-                int level = WifiManager.calculateSignalLevel(scanResult.level, 4);
-
-                AccessPoint accessPoint = new AccessPoint(
-                        scanResult.SSID,
-                        String.valueOf(scanResult.level) + " dBm",
-                        String.valueOf(scanResult.frequency) + " MHz",
-                        scanResult.capabilities,
-                        Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
-                                .getValueString(MainActivity.this, "n"))),
-                        String.valueOf(level),
-                        scanResult.BSSID, "0", "0");
-//                if (accessPoint.getBssid().equals("c4:12:f5:b8:7a:99")) {
-                accessPointList.add(accessPoint);
-//                }
-            }
+        // check if available and not read only
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
+            Log.e(TAG, "Storage not available or read only");
+            return false;
         }
 
-        Collections.sort(accessPointList, new ApComparator());
+        boolean success = false;
 
-        mAdapter = new ApAdapter(accessPointList);
-        recyclerView.setAdapter(mAdapter);
-//        Toast.makeText(this, "Jumlah Access Point: " + accessPointList.size(), Toast.LENGTH_SHORT).show();
+        //New Workbook
+        Workbook wb = new HSSFWorkbook();
+
+        Cell c = null;
+
+        //Cell style for header row
+//        CellStyle cs = wb.createCellStyle();
+//        cs.setFillForegroundColor(HSSFColor.LIME.index);
+//        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        //New Sheet
+        Sheet sheet1 = null;
+        sheet1 = wb.createSheet("myOrder");
+
+        List<String> list = new ArrayList<>();
+        list.add("Atep");
+        list.add("Ajun");
+        list.add("Ronggo");
+        list.add("Asu");
+        list.add("Jjjj");
+        list.add("asdlfkj");
+        list.add("Fu");
+
+        // Generate column headings
+        Row row = sheet1.createRow(0);
+
+        c = row.createCell(0);
+        c.setCellValue("AP1 - RSSI");
+        c = row.createCell(1);
+        c.setCellValue("AP1 - RSSI KF");
+        c = row.createCell(2);
+        c.setCellValue("AP2 - RSSI");
+        c = row.createCell(3);
+        c.setCellValue("AP2 - RSSI KF");
+        c = row.createCell(4);
+        c.setCellValue("AP3 - RSSI");
+        c = row.createCell(5);
+        c.setCellValue("AP3 - RSSI KF");
+
+        // AP1 RSSI
+        int j = 1;
+        for (int i = 0; i < rssiListAp1.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp1.get(i));
+            j++;
+        }
+
+        // AP1 RSSI KF
+        j = 1;
+        for (int i = 0; i < rssiKFListAp1.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp1.get(i));
+            j++;
+        }
+
+        // AP2 RSSI
+        j = 1;
+        for (int i = 0; i < rssiListAp2.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp2.get(i));
+            j++;
+        }
+
+        // AP2 RSSI KF
+        j = 1;
+        for (int i = 0; i < rssiKFListAp2.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp2.get(i));
+            j++;
+        }
+
+        // AP3 RSSI
+        j = 1;
+        for (int i = 0; i < rssiListAp3.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp3.get(i));
+            j++;
+        }
+
+        // AP3 RSSI KF
+        j = 1;
+        for (int i = 0; i < rssiKFListAp3.size(); i++) {
+            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp3.get(i));
+            j++;
+        }
+
+        // Create a path where we will place our List of objects on external storage
+        File file = new File(context.getExternalFilesDir(null), fileName);
+
+        try (FileOutputStream os = new FileOutputStream(file)) {
+            wb.write(os);
+            Log.w("FileUtils", "Writing file" + file);
+            Toast.makeText(context, "Exported to " + file, Toast.LENGTH_SHORT).show();
+            success = true;
+        } catch (IOException e) {
+            Toast.makeText(context, "Error writing " + e, Toast.LENGTH_SHORT).show();
+            Log.w("FileUtils", "Error writing " + file, e);
+        } catch (Exception e) {
+            Toast.makeText(context, "Error " + e, Toast.LENGTH_SHORT).show();
+            Log.w("FileUtils", "Failed to save file", e);
+        }
+        return success;
     }
 
-    private void calculateRssiMean() {
+    public static boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
+    }
 
+    public static boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 }
