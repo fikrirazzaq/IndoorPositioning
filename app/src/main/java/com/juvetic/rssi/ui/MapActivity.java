@@ -109,7 +109,7 @@ public class MapActivity extends BaseActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "gedung_e_v4.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "hes_lab.svg"));
 
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 10, Color.RED, 1000);
         mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 10, Color.GREEN, 1000);

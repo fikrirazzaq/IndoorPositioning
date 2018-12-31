@@ -244,7 +244,7 @@ public class MainActivity extends BaseActivity {
                                             .getValueString(MainActivity.this, "n"))));
                             accessPointList.add(accessPoint);
                             break;
-                        case "6a:c6:3a:d6:9c:92":
+                        case "6a:c6:3a:d6:9c:92": //6a:c6:3a:d6:9c:92
                             rssiKFQueueAp2 = tinydb.getQueueDouble("rssi_kalman_list_ap2");
                             rssiKFQueueAp2.add((double) scanResult.level);
                             tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiKFQueueAp2);
@@ -406,8 +406,18 @@ public class MainActivity extends BaseActivity {
 //        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 
         //New Sheet
-        Sheet sheet1 = null;
-        sheet1 = wb.createSheet("myOrder");
+        Sheet sheetRssiAp1 = null;
+        Sheet sheetRssiAp1KF = null;
+        Sheet sheetRssiAp2 = null;
+        Sheet sheetRssiAp2KF = null;
+        Sheet sheetRssiAp3 = null;
+        Sheet sheetRssiAp3KF = null;
+        sheetRssiAp1 = wb.createSheet("AP1");
+        sheetRssiAp1KF = wb.createSheet("AP1 KF");
+        sheetRssiAp2 = wb.createSheet("AP2");
+        sheetRssiAp2KF = wb.createSheet("AP2 KF");
+        sheetRssiAp3 = wb.createSheet("AP3");
+        sheetRssiAp3KF = wb.createSheet("AP3 KF");
 
         List<String> list = new ArrayList<>();
         list.add("Atep");
@@ -419,61 +429,49 @@ public class MainActivity extends BaseActivity {
         list.add("Fu");
 
         // Generate column headings
-        Row row = sheet1.createRow(0);
-
-        c = row.createCell(0);
-        c.setCellValue("AP1 - RSSI");
-        c = row.createCell(1);
-        c.setCellValue("AP1 - RSSI KF");
-        c = row.createCell(2);
-        c.setCellValue("AP2 - RSSI");
-        c = row.createCell(3);
-        c.setCellValue("AP2 - RSSI KF");
-        c = row.createCell(4);
-        c.setCellValue("AP3 - RSSI");
-        c = row.createCell(5);
-        c.setCellValue("AP3 - RSSI KF");
+        Row row = sheetRssiAp1KF.createRow(0);
+//
+//        c = row.createCell(0);
+//        c.setCellValue("AP1 - RSSI");
+//        c = row.createCell(1);
+//        c.setCellValue("AP1 - RSSI KF");
+//        c = row.createCell(2);
+//        c.setCellValue("AP2 - RSSI");
+//        c = row.createCell(3);
+//        c.setCellValue("AP2 - RSSI KF");
+//        c = row.createCell(4);
+//        c.setCellValue("AP3 - RSSI");
+//        c = row.createCell(5);
+//        c.setCellValue("AP3 - RSSI KF");
 
         // AP1 RSSI
-        int j = 1;
         for (int i = 0; i < rssiListAp1.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp1.get(i));
-            j++;
+            sheetRssiAp1.createRow(i).createCell(0).setCellValue(rssiListAp1.get(i));
         }
 
         // AP1 RSSI KF
-        j = 1;
-        for (int i = 0; i < rssiKFListAp1.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp1.get(i));
-            j++;
+        for (int i = 0; i < list.size(); i++) {
+            sheetRssiAp1KF.createRow(i).createCell(0).setCellValue(list.get(i));
         }
 
         // AP2 RSSI
-        j = 1;
         for (int i = 0; i < rssiListAp2.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp2.get(i));
-            j++;
+            sheetRssiAp2.createRow(i).createCell(0).setCellValue(rssiListAp2.get(i));
         }
 
         // AP2 RSSI KF
-        j = 1;
         for (int i = 0; i < rssiKFListAp2.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp2.get(i));
-            j++;
+            sheetRssiAp2KF.createRow(i).createCell(0).setCellValue(rssiKFListAp2.get(i));
         }
 
         // AP3 RSSI
-        j = 1;
         for (int i = 0; i < rssiListAp3.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiListAp3.get(i));
-            j++;
+            sheetRssiAp3.createRow(i).createCell(0).setCellValue(rssiListAp3.get(i));
         }
 
         // AP3 RSSI KF
-        j = 1;
         for (int i = 0; i < rssiKFListAp3.size(); i++) {
-            sheet1.createRow(j).createCell(0).setCellValue(rssiKFListAp3.get(i));
-            j++;
+            sheetRssiAp3KF.createRow(i).createCell(0).setCellValue(rssiKFListAp3.get(i));
         }
 
         // Create a path where we will place our List of objects on external storage
