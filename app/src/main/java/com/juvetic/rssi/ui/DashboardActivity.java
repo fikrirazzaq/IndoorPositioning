@@ -13,7 +13,7 @@ import com.juvetic.rssi.util.ToolUtil;
 
 public class DashboardActivity extends BaseActivity implements OnClickListener {
 
-    Button list, mapKalman, apdeploy, mapNonKalman;
+    Button list, mapKalman, apdeploy, mapNonKalman, mapKalmanB, mapFeedback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +29,15 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
         mapKalman = findViewById(R.id.btn_map_kalman);
         mapNonKalman = findViewById(R.id.btn_map_non_kalman);
         apdeploy = findViewById(R.id.btn_apdeploy);
+        mapKalmanB = findViewById(R.id.btn_map_kalman_type_b);
+        mapFeedback = findViewById(R.id.btn_map_feedback);
 
         list.setOnClickListener(this);
         mapKalman.setOnClickListener(this);
         mapNonKalman.setOnClickListener(this);
         apdeploy.setOnClickListener(this);
+        mapKalmanB.setOnClickListener(this);
+        mapFeedback.setOnClickListener(this);
 
         initVal();
     }
@@ -98,8 +102,8 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
     public void onClick(final View v) {
         switch (v.getId()) {
             case R.id.btn_list:
-                if (noise.equals("") || n.equals("")) {
-                    Toast.makeText(this, "Set Noise and N in AP Deploy", Toast.LENGTH_SHORT).show();
+                if (noise.equals("") || n.equals("") || alpha.equals("")) {
+                    Toast.makeText(this, "Set Filter Input in AP Deploy", Toast.LENGTH_SHORT).show();
                 } else {
                     PageUtil.getInstance().jumpToPage(DashboardActivity.this, MainActivity.class);
                 }
@@ -110,19 +114,42 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
             case R.id.btn_map_kalman:
                 if (x1.equals("") || y1.equals("") || x2.equals("") || y2.equals("")
                         || x3.equals("") || y3.equals("")
-                        || noise.equals("") || n.equals("")) {
+                        || noise.equals("") || n.equals("") || alpha.equals("")) {
                     Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
                 } else {
-                    PageUtil.getInstance().jumpToPage(DashboardActivity.this, MapKalmanActivity.class);
+                    PageUtil.getInstance().jumpToMap(DashboardActivity.this, MapFilterActivity.class,
+                            "kalman1");
                 }
                 break;
             case R.id.btn_map_non_kalman:
                 if (x1.equals("") || y1.equals("") || x2.equals("") || y2.equals("")
                         || x3.equals("") || y3.equals("")
-                        || noise.equals("") || n.equals("")) {
+                        || noise.equals("") || n.equals("") || alpha.equals("")) {
                     Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
                 } else {
                     PageUtil.getInstance().jumpToPage(DashboardActivity.this, MapActivity.class);
+                }
+                break;
+
+            case R.id.btn_map_kalman_type_b:
+                if (x1.equals("") || y1.equals("") || x2.equals("") || y2.equals("")
+                        || x3.equals("") || y3.equals("")
+                        || noise.equals("") || n.equals("") || alpha.equals("")) {
+                    Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
+                } else {
+                    PageUtil.getInstance().jumpToMap(DashboardActivity.this, MapFilterActivity.class,
+                            "kalman2");
+                }
+                break;
+
+            case R.id.btn_map_feedback:
+                if (x1.equals("") || y1.equals("") || x2.equals("") || y2.equals("")
+                        || x3.equals("") || y3.equals("")
+                        || noise.equals("") || n.equals("") || alpha.equals("")) {
+                    Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
+                } else {
+                    PageUtil.getInstance().jumpToMap(DashboardActivity.this, MapFilterActivity.class,
+                            "feedback");
                 }
                 break;
         }

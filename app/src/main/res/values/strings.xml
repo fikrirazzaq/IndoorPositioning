@@ -8,4 +8,8 @@
     <string name="filter_by_feedback">Filter by Feedback</string>
     <string name="reload">Reload</string>
     <string name="deploy">Deploy</string>
+    <string name="map_without_kf">Map without KF</string>
+    <string name="map_with_kf_type_a">Map with KF Type A</string>
+    <string name="map_with_kf_type_b">Map with KF Type B</string>
+    <string name="map_with_feedback_filter">Map with Feedback Filter</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.juvetic.rssi.util.formulas;
 
 import android.util.Log;
-import com.juvetic.rssi.ui.MapKalmanActivity;
+import com.juvetic.rssi.ui.MapFilterActivity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -65,8 +65,8 @@ public class Formula {
         variance = (1 - kalmanGain) * variance;
 
         ArrayList<Double> fromQueue = new ArrayList(inputValues);
-        Log.d(MapKalmanActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
-        Log.d(MapKalmanActivity.class.getSimpleName(),
+        Log.d(MapFilterActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
+        Log.d(MapFilterActivity.class.getSimpleName(),
                 "onReceive: First Value " + fromQueue.get(fromQueue.size() - 1));
 
         ArrayList<Double> returnList = new ArrayList<>();
@@ -103,8 +103,8 @@ public class Formula {
         variance = (1 - kalmanGain) * variance;
 
         ArrayList<Double> fromQueue = new ArrayList(inputValues);
-        Log.d(MapKalmanActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
-        Log.d(MapKalmanActivity.class.getSimpleName(),
+        Log.d(MapFilterActivity.class.getSimpleName(), "onReceive: Last Value " + fromQueue.get(0));
+        Log.d(MapFilterActivity.class.getSimpleName(),
                 "onReceive: First Value " + fromQueue.get(fromQueue.size() - 1));
 
         ArrayList<Double> returnList = new ArrayList<>();

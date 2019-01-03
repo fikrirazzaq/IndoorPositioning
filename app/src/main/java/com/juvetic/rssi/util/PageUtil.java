@@ -1,10 +1,8 @@
 package com.juvetic.rssi.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
-import com.juvetic.rssi.ui.DashboardActivity;
+import com.juvetic.rssi.ui.MapFilterActivity;
 
 public class PageUtil {
 
@@ -33,6 +31,12 @@ public class PageUtil {
 
     public void jumpToPage(Context srcClass, Class<?> cls) {
         Intent intent = new Intent(srcClass, cls);
+        srcClass.startActivity(intent);
+    }
+
+    public void jumpToMap(Context srcClass, Class<?> cls, String filter) {
+        Intent intent = new Intent(srcClass, cls);
+        intent.putExtra(MapFilterActivity.EXTRA_FILTER, filter);
         srcClass.startActivity(intent);
     }
 }

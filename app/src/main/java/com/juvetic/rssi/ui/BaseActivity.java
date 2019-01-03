@@ -14,7 +14,7 @@ public class BaseActivity extends AppCompatActivity {
 
     TinyDB tinydb;
 
-    String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos, bssid1, bssid2, bssid3, noise, n;
+    String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos, bssid1, bssid2, bssid3, noise, n, alpha;
 
     double variansiAp1TypeA = 0;
 
@@ -123,7 +123,7 @@ public class BaseActivity extends AppCompatActivity {
 
         noise = ToolUtil.Storage.getValueString(this, "noise", "");
         n = ToolUtil.Storage.getValueString(this, "n", "");
-        n = ToolUtil.Storage.getValueString(this, "alpha", "");
+        alpha = ToolUtil.Storage.getValueString(this, "alpha", "");
     }
 
 }

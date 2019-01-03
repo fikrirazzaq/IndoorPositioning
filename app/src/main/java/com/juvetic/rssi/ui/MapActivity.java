@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.net.wifi.ScanResult;
@@ -47,7 +46,7 @@ public class MapActivity extends BaseActivity {
         setContentView(R.layout.activity_map);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setTitle("Map without KF");
+        setTitle("Map - No Filter");
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new MapActivity.WifiScanReceiver();
@@ -214,24 +213,20 @@ public class MapActivity extends BaseActivity {
                 ToolUtil.Storage
                         .setValueString(MapActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
 
-                Log.d(MapKalmanActivity.class.getSimpleName(),
+                Log.d(MapFilterActivity.class.getSimpleName(),
                         "onReceive: X " + String.valueOf(xy.get(0).floatValue()));
-                Log.d(MapKalmanActivity.class.getSimpleName(),
+                Log.d(MapFilterActivity.class.getSimpleName(),
                         "onReceive: Y " + String.valueOf(xy.get(1).floatValue()));
 
                 xPos = ToolUtil.Storage.getValueString(MapActivity.this, "xPos");
                 yPos = ToolUtil.Storage.getValueString(MapActivity.this, "yPos");
 
                 mapView.getOverLays().remove(locationOverlay);
+
                 locationOverlay = new SVGMapLocationOverlay(mapView);
-                locationOverlay.setIndicatorArrowBitmap(
-                        BitmapFactory.decodeResource(getResources(), R.mipmap.indicator_arrow));
                 locationOverlay.setPosition(new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
-                locationOverlay.setIndicatorCircleRotateDegree(90);
-                locationOverlay.setMode(SVGMapLocationOverlay.MODE_NORMAL);
+
                 mapView.getOverLays().add(locationOverlay);
-//                mapView.getController()
-//                        .sparkAtPoint(new PointF(Float.valueOf(xPos), Float.valueOf(yPos)), 15, Color.RED, 1000);
                 mapView.refresh();
             }
 

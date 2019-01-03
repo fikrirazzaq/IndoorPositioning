@@ -25,7 +25,7 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MapKalmanActivity" />
+        <activity android:name=".ui.MapFilterActivity" />
         <activity android:name=".ui.ApDeployActivity" />
         <activity android:name=".ui.MapActivity"></activity>
     </application>
