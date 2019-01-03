@@ -3,4 +3,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="filter_by_kalman_type_a">Filter by Kalman Type A</string>
+    <string name="filter_by_kalman_type_b">Filter by Kalman Type B</string>
+    <string name="filter_by_feedback">Filter by Feedback</string>
+    <string name="reload">Reload</string>
+    <string name="deploy">Deploy</string>
 </resources>

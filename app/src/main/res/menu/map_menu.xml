@@ -6,14 +6,29 @@
         android:id="@+id/map_menu_deploy"
         android:icon="@drawable/ic_event_note_black_24dp"
         android:orderInCategory="100"
-        app:showAsAction="always"
-        android:title="Deploy" />
+        android:title="@string/deploy"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/map_menu_reload"
         android:icon="@drawable/ic_autorenew_black_24dp"
         android:orderInCategory="100"
-        app:showAsAction="always"
-        android:title="Reload" />
+        android:title="@string/reload"
+        app:showAsAction="ifRoom" />
+
+    <group
+        android:id="@+id/group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_filterby_kalman_type_a"
+            android:title="@string/filter_by_kalman_type_a"
+            android:checked="true" />
+        <item
+            android:id="@+id/menu_filterby_kalman_type_b"
+            android:title="@string/filter_by_kalman_type_b" />
+        <item
+            android:id="@+id/menu_filterby_feedback"
+            android:title="@string/filter_by_feedback" />
+    </group>
 
 </menu>

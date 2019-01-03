@@ -37,8 +37,12 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         holder.freq.setText(accessPoint.getFreq());
         holder.distance.setText(accessPoint.getDistance());
         holder.bssid.setText(accessPoint.getBssid());
-        holder.kalmanRssi.setText(accessPoint.getRssiKalman());
-        holder.kalmanDistance.setText(accessPoint.getDistanceKalman());
+        holder.kalmanRssi.setText(accessPoint.getRssiKalmanTypeA());
+        holder.kalmanDistance.setText(accessPoint.getDistanceKalmanTypeA());
+        holder.kalmanRssiTypeB.setText(accessPoint.getRssiKalmanTypeB());
+        holder.kalmanDistanceTypeB.setText(accessPoint.getDistanceKalmanTypeB());
+        holder.feedbackRssi.setText(accessPoint.getRssiFeedback());
+        holder.feedbackDistance.setText(accessPoint.getDistanceFeedback());
 
         switch (accessPoint.getCh()) {
             case "0":
@@ -84,7 +88,8 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap, rata, kalmanRssi, kalmanDistance;
+        TextView name, rssi, cap, freq, distance, bssid, ch, venue, ap, rata,
+                kalmanRssi, kalmanDistance, kalmanRssiTypeB, kalmanDistanceTypeB, feedbackRssi, feedbackDistance;
 
         ImageView img;
 
@@ -100,6 +105,10 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             ap = view.findViewById(R.id.tv_ap);
             kalmanDistance = view.findViewById(R.id.tx_distance_kalman);
             kalmanRssi = view.findViewById(R.id.tv_rssi_kalman);
+            kalmanDistanceTypeB = view.findViewById(R.id.tx_distance_kalman_type_b);
+            kalmanRssiTypeB = view.findViewById(R.id.tv_rssi_kalman_type_b);
+            feedbackDistance = view.findViewById(R.id.tx_distance_feedback);
+            feedbackRssi = view.findViewById(R.id.tv_rssi_feedback);
         }
     }
 }

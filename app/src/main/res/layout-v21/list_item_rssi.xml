@@ -63,7 +63,6 @@
                         android:layout_width="56dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="6dp"
                         android:gravity="center"
                         android:text="20"
                         android:textColor="@color/colorAccent"
@@ -75,10 +74,31 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/tx_distance"
                         android:layout_gravity="center"
-                        android:layout_margin="6dp"
                         android:gravity="center"
                         android:text="20"
                         android:textColor="@color/colorPrimaryDark"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tx_distance_kalman_type_b"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tx_distance_kalman"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="20"
+                        android:textColor="@color/colorAccent2"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tx_distance_feedback"
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tx_distance_kalman_type_b"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="20"
+                        android:textColor="@color/colorAccent3"
                         android:textStyle="bold" />
                 </RelativeLayout>
 
@@ -111,8 +131,8 @@
                         android:layout_height="wrap_content"
                         android:text="rssi"
                         android:textAppearance="@android:style/TextAppearance.Material.Caption"
-                        tools:targetApi="lollipop"
-                        android:textColor="@color/colorAccent"/>
+                        android:textColor="@color/colorAccent"
+                        tools:targetApi="lollipop" />
 
                     <TextView
                         android:id="@+id/tv_rssi_kalman"
@@ -120,8 +140,26 @@
                         android:layout_height="wrap_content"
                         android:text="rssi"
                         android:textAppearance="@android:style/TextAppearance.Material.Caption"
-                        tools:targetApi="lollipop"
-                        android:textColor="@color/colorPrimaryDark"/>
+                        android:textColor="@color/colorPrimaryDark"
+                        tools:targetApi="lollipop" />
+
+                    <TextView
+                        android:id="@+id/tv_rssi_kalman_type_b"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="rssi"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        android:textColor="@color/colorAccent2"
+                        tools:targetApi="lollipop" />
+
+                    <TextView
+                        android:id="@+id/tv_rssi_feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="rssi"
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption"
+                        android:textColor="@color/colorAccent3"
+                        tools:targetApi="lollipop" />
 
                     <TextView
                         android:id="@+id/tv_cap"

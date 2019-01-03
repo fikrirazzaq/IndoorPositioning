@@ -39,32 +39,58 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
     }
 
     private void initVal() {
-        ToolUtil.Storage.setValueString(this, "rssi_kalman_api1",
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api1_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "rssi_kalman_api2",
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api2_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "rssi_kalman_api3",
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api3_type_a",
                 String.valueOf(0));
         ToolUtil.Storage.setValueInt(this, "i_kalman_ap1", 0);
         ToolUtil.Storage.setValueInt(this, "i_kalman_ap2", 0);
         ToolUtil.Storage.setValueInt(this, "i_kalman_ap3", 0);
-        ToolUtil.Storage.setValueString(this, "var_kalman_ap1",
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap1_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "var_kalman_ap2",
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap2_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "var_kalman_ap3",
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap3_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "dist_kalman_ap1",
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap1_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "dist_kalman_ap2",
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap2_type_a",
                 String.valueOf(0));
-        ToolUtil.Storage.setValueString(this, "dist_kalman_ap3",
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap3_type_a",
                 String.valueOf(0));
         ToolUtil.Storage.setValueString(this, "d1",
                 String.valueOf(0));
         ToolUtil.Storage.setValueString(this, "d2",
                 String.valueOf(0));
         ToolUtil.Storage.setValueString(this, "d3",
+                String.valueOf(0));
+
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api1_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api2_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "rssi_kalman_api3_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap1_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap2_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "var_kalman_ap3_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap1_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap2_type_b",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "dist_kalman_ap3_type_b",
+                String.valueOf(0));
+
+        ToolUtil.Storage.setValueString(this, "pre_rssi_ap1",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "pre_rssi_ap2",
+                String.valueOf(0));
+        ToolUtil.Storage.setValueString(this, "pre_rssi_ap3",
                 String.valueOf(0));
     }
 

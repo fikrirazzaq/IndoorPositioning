@@ -27,7 +27,6 @@ import com.juvetic.rssi.util.ApComparator;
 import com.juvetic.rssi.util.RecyclerTouchListener;
 import com.juvetic.rssi.util.ToolUtil;
 import com.juvetic.rssi.util.formulas.Formula;
-import com.juvetic.rssi.util.formulas.KalmanFilter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -77,21 +76,45 @@ public class MainActivity extends BaseActivity {
 
     ArrayList<Double> rssiKFListAp3 = new ArrayList<>();
 
-    ArrayList<Double> kfAlgoAp1 = new ArrayList<>();
+    ArrayList<Double> kfAlgoAp1TypeA = new ArrayList<>();
 
-    ArrayList<Double> kfAlgoAp2 = new ArrayList<>();
+    ArrayList<Double> kfAlgoAp2TypeA = new ArrayList<>();
 
-    ArrayList<Double> kfAlgoAp3 = new ArrayList<>();
+    ArrayList<Double> kfAlgoAp3TypeA = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp1TypeB = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp2TypeB = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp3TypeB = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp1 = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp2 = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp3 = new ArrayList<>();
 
     ArrayList<Double> elseList = new ArrayList<>();
 
     AccessPoint accessPoint;
 
-    double variansiAp1 = 0;
+    double variansiAp1TypeA = 0;
 
-    double variansiAp2 = 0;
+    double variansiAp2TypeA = 0;
 
-    double variansiAp3 = 0;
+    double variansiAp3TypeA = 0;
+
+    double variansiAp1TypeB = 0;
+
+    double variansiAp2TypeB = 0;
+
+    double variansiAp3TypeB = 0;
+
+    double preRssiAp1KFTypeB = 0;
+
+    double preRssiAp2KFTypeB = 0;
+
+    double preRssiAp3KFTypeB = 0;
 
     int iAp1 = 0;
 
@@ -114,9 +137,18 @@ public class MainActivity extends BaseActivity {
         progressBarTop.setVisibility(View.VISIBLE);
 //        loadData();
 
-        variansiAp1 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1"));
-        variansiAp2 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2"));
-        variansiAp3 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3"));
+        variansiAp1TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1_type_a"));
+        variansiAp2TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2_type_a"));
+        variansiAp3TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3_type_a"));
+
+        variansiAp1TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1_type_b"));
+        variansiAp2TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2_type_b"));
+        variansiAp3TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3_type_b"));
+
+        preRssiAp1KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap1"));
+        preRssiAp2KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap2"));
+        preRssiAp3KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap3"));
+
         iAp1 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap1");
         iAp2 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap2");
         iAp3 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap3");
@@ -204,30 +236,77 @@ public class MainActivity extends BaseActivity {
                         //60:de:f3:03:60:30 SBK Group
                         //78:8a:20:d4:ac:28 Cocowork
                         case "b6:e6:2d:23:84:90": //AP1
+                            // KF Type A
                             rssiKFQueueAp1 = tinydb.getQueueDouble("rssi_kalman_list_ap1");
                             rssiKFQueueAp1.add((double) scanResult.level);
                             tinydb.putQueueDouble("rssi_kalman_list_ap1", rssiKFQueueAp1);
 
                             if (iAp1 == 0) {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp1, 1, 0.008);
-                                variansiAp1 = kfAlgoAp1.get(4);
+                                // KF Type A
+                                kfAlgoAp1TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp1, 1, Double.parseDouble
+                                        (ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp1TypeA = kfAlgoAp1TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp1TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp1, preRssiAp1KFTypeB, 1,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp1KFTypeB = kfAlgoAp1TypeB.get(3);
+                                variansiAp1TypeB = kfAlgoAp1TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp1 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             } else {
-                                kfAlgoAp1 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp1, variansiAp1, 0.008);
-                                variansiAp1 = kfAlgoAp1.get(4);
+                                // KF Type A
+                                kfAlgoAp1TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp1, variansiAp1TypeA,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp1TypeA = kfAlgoAp1TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp1TypeB = Formula
+                                        .applyKFAlgorithmTypeB(rssiKFQueueAp1, preRssiAp1KFTypeB, variansiAp1TypeB,
+                                                Double.parseDouble(
+                                                        ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp1KFTypeB = kfAlgoAp1TypeB.get(3);
+                                variansiAp1TypeB = kfAlgoAp1TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp1 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp1TypeA.get(0),
+                                        (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             }
                             iAp1 += 1;
 
                             rssiListAp1.add((double) scanResult.level);
-                            rssiKFListAp1.add(kfAlgoAp1.get(3));
+                            rssiKFListAp1.add(kfAlgoAp1TypeA.get(3));
 
-                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap1",
-                                    String.valueOf(kfAlgoAp1.get(3)));
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap1",
                                     iAp1);
-                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap1",
-                                    String.valueOf(variansiAp1));
-                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap1",
-                                    Formula.distance(kfAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
+                            ToolUtil.Storage.setValueString(MainActivity.this, "pre_rssi_ap1",
+                                    String.valueOf(preRssiAp1KFTypeB));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap1_type_a",
+                                    String.valueOf(kfAlgoAp1TypeA.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap1_type_a",
+                                    String.valueOf(variansiAp1TypeA));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap1_type_a",
+                                    Formula.distance(kfAlgoAp1TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap1_type_b",
+                                    String.valueOf(kfAlgoAp1TypeB.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap1_type_b",
+                                    String.valueOf(variansiAp1TypeB));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap1_type_b",
+                                    Formula.distance(kfAlgoAp1TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_feedback_ap1",
+                                    Formula.distance(fbAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
@@ -239,35 +318,94 @@ public class MainActivity extends BaseActivity {
                                             .getValueString(MainActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    String.valueOf(kfAlgoAp1.get(3)) + " dBm",
-                                    Formula.distance(kfAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MainActivity.this, "n"))));
+                                    String.valueOf(kfAlgoAp1TypeA.get(3)) + " dBm",
+                                    String.valueOf(kfAlgoAp1TypeB.get(3)) + " dBm",
+                                    String.valueOf(fbAlgoAp1.get(3)) + " dBm",
+                                    Formula.distance
+                                            (kfAlgoAp1TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance
+                                            (kfAlgoAp1TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance(
+                                            fbAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n")))
+                            );
                             accessPointList.add(accessPoint);
                             break;
-                        case "6a:c6:3a:d6:9c:92": //6a:c6:3a:d6:9c:92
+                        //78:8a:20:d4:a4:d8
+                        //6a:c6:3a:d6:9c:92
+                        case "6a:c6:3a:d6:9c:92": //2
                             rssiKFQueueAp2 = tinydb.getQueueDouble("rssi_kalman_list_ap2");
                             rssiKFQueueAp2.add((double) scanResult.level);
                             tinydb.putQueueDouble("rssi_kalman_list_ap2", rssiKFQueueAp2);
 
                             if (iAp2 == 0) {
-                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp2, 1, 0.008);
-                                variansiAp2 = kfAlgoAp2.get(4);
+                                // KF Type A
+                                kfAlgoAp2TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp2, 1,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp2TypeA = kfAlgoAp2TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp2TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp2, preRssiAp2KFTypeB, 1,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp2KFTypeB = kfAlgoAp2TypeB.get(3);
+                                variansiAp2TypeB = kfAlgoAp2TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp2 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             } else {
-                                kfAlgoAp2 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp2, variansiAp2, 0.008);
-                                variansiAp2 = kfAlgoAp2.get(4);
+                                // KF Type A
+                                kfAlgoAp2TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp2, variansiAp2TypeA,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp2TypeA = kfAlgoAp2TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp2TypeB = Formula
+                                        .applyKFAlgorithmTypeB(rssiKFQueueAp2, preRssiAp2KFTypeB, variansiAp2TypeB,
+                                                Double.parseDouble(
+                                                        ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp2KFTypeB = kfAlgoAp2TypeB.get(3);
+                                variansiAp2TypeB = kfAlgoAp2TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp2 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp2TypeA.get(0),
+                                        (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             }
                             iAp2 += 1;
 
                             rssiListAp2.add((double) scanResult.level);
-                            rssiKFListAp2.add(kfAlgoAp2.get(3));
+                            rssiKFListAp2.add(kfAlgoAp2TypeA.get(3));
 
-                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap2",
-                                    String.valueOf(kfAlgoAp2.get(3)));
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap2", iAp2);
-                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap2",
-                                    String.valueOf(variansiAp2));
-                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap2",
-                                    Formula.distance(kfAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
+                            ToolUtil.Storage.setValueString(MainActivity.this, "pre_rssi_ap2",
+                                    String.valueOf(preRssiAp2KFTypeB));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap2_type_b",
+                                    String.valueOf(kfAlgoAp2TypeA.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap2_type_b",
+                                    String.valueOf(variansiAp2TypeA));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap2_type_b",
+                                    Formula.distance(kfAlgoAp2TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap2_type_b",
+                                    String.valueOf(kfAlgoAp2TypeB.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap2_type_b",
+                                    String.valueOf(variansiAp2TypeB));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap2_type_b",
+                                    Formula.distance(kfAlgoAp2TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_feedback_ap2",
+                                    Formula.distance(fbAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
@@ -275,39 +413,98 @@ public class MainActivity extends BaseActivity {
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                    Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    String.valueOf(kfAlgoAp2.get(3)) + " dBm",
-                                    Formula.distance(kfAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MainActivity.this, "n"))));
+                                    String.valueOf(kfAlgoAp2TypeA.get(3)) + " dBm",
+                                    String.valueOf(kfAlgoAp2TypeB.get(3)) + " dBm",
+                                    String.valueOf(fbAlgoAp2.get(3)) + " dBm",
+                                    Formula.distance
+                                            (kfAlgoAp2TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance
+                                            (kfAlgoAp2TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance(
+                                            fbAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n")))
+                            );
                             accessPointList.add(accessPoint);
                             break;
-                        case "be:dd:c2:fe:3b:0b":
+                        // 78:8a:20:d4:a9:74
+                        // be:dd:c2:fe:3b:0b
+                        case "be:dd:c2:fe:3b:0b": //AP3
                             rssiKFQueueAp3 = tinydb.getQueueDouble("rssi_kalman_list_ap3");
                             rssiKFQueueAp3.add((double) scanResult.level);
                             tinydb.putQueueDouble("rssi_kalman_list_ap3", rssiKFQueueAp3);
 
                             if (iAp3 == 0) {
-                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp3, 1, 0.008);
-                                variansiAp3 = kfAlgoAp3.get(4);
+                                // KF Type A
+                                kfAlgoAp3TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp3, 1,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp3TypeA = kfAlgoAp3TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp3TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp3, preRssiAp3KFTypeB, 1,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp3KFTypeB = kfAlgoAp3TypeB.get(3);
+                                variansiAp3TypeB = kfAlgoAp3TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp3 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             } else {
-                                kfAlgoAp3 = KalmanFilter.applyKFAlgorithm(rssiKFQueueAp3, variansiAp3, 0.008);
-                                variansiAp3 = kfAlgoAp3.get(4);
+                                // KF Type A
+                                kfAlgoAp3TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp3, variansiAp3TypeA,
+                                        Double.parseDouble(
+                                                ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                variansiAp3TypeA = kfAlgoAp3TypeA.get(4);
+
+                                // KF Type B
+                                kfAlgoAp3TypeB = Formula
+                                        .applyKFAlgorithmTypeB(rssiKFQueueAp3, preRssiAp3KFTypeB, variansiAp3TypeB,
+                                                Double.parseDouble(
+                                                        ToolUtil.Storage.getValueString(MainActivity.this, "noise")));
+                                preRssiAp3KFTypeB = kfAlgoAp3TypeB.get(3);
+                                variansiAp3TypeB = kfAlgoAp3TypeB.get(4);
+
+                                // Feedback
+                                fbAlgoAp3 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp3TypeA.get(0),
+                                        (double) scanResult.level,
+                                        Double.parseDouble(ToolUtil.Storage
+                                                .getValueString(MainActivity.this, "alpha")));
                             }
                             iAp3 += 1;
 
                             rssiListAp3.add((double) scanResult.level);
-                            rssiKFListAp3.add(kfAlgoAp3.get(3));
+                            rssiKFListAp3.add(kfAlgoAp3TypeA.get(3));
 
-                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap3",
-                                    String.valueOf(kfAlgoAp3.get(3)));
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap3", iAp3);
-                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap3",
-                                    String.valueOf(variansiAp3));
-                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap3",
-                                    Formula.distance(kfAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
+                            ToolUtil.Storage.setValueString(MainActivity.this, "pre_rssi_ap3",
+                                    String.valueOf(preRssiAp3KFTypeB));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap3_type_a",
+                                    String.valueOf(kfAlgoAp3TypeA.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap3_type_a",
+                                    String.valueOf(variansiAp3TypeA));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap3_type_a",
+                                    Formula.distance(kfAlgoAp3TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "rssi_kalman_ap3_type_b",
+                                    String.valueOf(kfAlgoAp3TypeB.get(3)));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "var_kalman_ap3_type_b",
+                                    String.valueOf(variansiAp3TypeB));
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_kalman_ap3_type_b",
+                                    Formula.distance(kfAlgoAp3TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                            .getValueString(MainActivity.this, "n"))));
+
+                            ToolUtil.Storage.setValueString(MainActivity.this, "dist_feedback_ap3",
+                                    Formula.distance(fbAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))));
 
                             accessPoint = new AccessPoint(
@@ -315,13 +512,23 @@ public class MainActivity extends BaseActivity {
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                    Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    String.valueOf(kfAlgoAp3.get(3)) + " dBm",
-                                    Formula.distance(kfAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MainActivity.this, "n"))));
+                                    String.valueOf(kfAlgoAp3TypeA.get(3)) + " dBm",
+                                    String.valueOf(kfAlgoAp3TypeB.get(3)) + " dBm",
+                                    String.valueOf(fbAlgoAp3.get(3)) + " dBm",
+                                    Formula.distance
+                                            (kfAlgoAp3TypeA.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance
+                                            (kfAlgoAp3TypeB.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n"))),
+                                    Formula.distance(
+                                            fbAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
+                                                    .getValueString(MainActivity.this, "n")))
+                            );
                             accessPointList.add(accessPoint);
                             break;
                         default:
@@ -330,14 +537,18 @@ public class MainActivity extends BaseActivity {
                                     String.valueOf(scanResult.level) + " dBm",
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
-                                    Formula.distance(scanResult.level, Double.parseDouble(ToolUtil.Storage
+                                    Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
                                             .getValueString(MainActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    "0 dBm", "0");
+                                    "0 dBm",
+                                    "0 dBm",
+                                    "0 dBm",
+                                    "0",
+                                    "0",
+                                    "0"
+                            );
                             accessPointList.add(accessPoint);
-
-                            elseList.add((double) scanResult.level);
                             break;
                     }
                 }
@@ -406,27 +617,12 @@ public class MainActivity extends BaseActivity {
 //        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 
         //New Sheet
-        Sheet sheetRssiAp1 = null;
-        Sheet sheetRssiAp1KF = null;
-        Sheet sheetRssiAp2 = null;
-        Sheet sheetRssiAp2KF = null;
-        Sheet sheetRssiAp3 = null;
-        Sheet sheetRssiAp3KF = null;
-        sheetRssiAp1 = wb.createSheet("AP1");
-        sheetRssiAp1KF = wb.createSheet("AP1 KF");
-        sheetRssiAp2 = wb.createSheet("AP2");
-        sheetRssiAp2KF = wb.createSheet("AP2 KF");
-        sheetRssiAp3 = wb.createSheet("AP3");
-        sheetRssiAp3KF = wb.createSheet("AP3 KF");
-
-        List<String> list = new ArrayList<>();
-        list.add("Atep");
-        list.add("Ajun");
-        list.add("Ronggo");
-        list.add("Asu");
-        list.add("Jjjj");
-        list.add("asdlfkj");
-        list.add("Fu");
+        Sheet sheetRssiAp1 = wb.createSheet("AP1");
+        Sheet sheetRssiAp1KF = wb.createSheet("AP1 KF");
+        Sheet sheetRssiAp2 = wb.createSheet("AP2");
+        Sheet sheetRssiAp2KF = wb.createSheet("AP2 KF");
+        Sheet sheetRssiAp3 = wb.createSheet("AP3");
+        Sheet sheetRssiAp3KF = wb.createSheet("AP3 KF");
 
         // Generate column headings
         Row row = sheetRssiAp1KF.createRow(0);
@@ -450,8 +646,8 @@ public class MainActivity extends BaseActivity {
         }
 
         // AP1 RSSI KF
-        for (int i = 0; i < list.size(); i++) {
-            sheetRssiAp1KF.createRow(i).createCell(0).setCellValue(list.get(i));
+        for (int i = 0; i < rssiKFListAp1.size(); i++) {
+            sheetRssiAp1KF.createRow(i).createCell(0).setCellValue(rssiKFListAp1.get(i));
         }
 
         // AP2 RSSI

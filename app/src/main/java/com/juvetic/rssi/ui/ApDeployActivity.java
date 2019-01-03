@@ -14,7 +14,7 @@ import java.util.Queue;
 
 public class ApDeployActivity extends BaseActivity {
 
-    EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3, edtNoiseQ, edtN;
+    EditText x1, y1, x2, y2, x3, y3, edtBssidAp1, edtBssidAp2, edtBssidAp3, edtNoiseQ, edtN, edtAlpha;
 
     RadioButton rdBtnDefault, rdBtnLainnya;
 
@@ -42,6 +42,7 @@ public class ApDeployActivity extends BaseActivity {
         btnResetKf = findViewById(R.id.btn_reset_kf);
         edtNoiseQ = findViewById(R.id.edt_noise);
         edtN = findViewById(R.id.edt_n);
+        edtAlpha = findViewById(R.id.edt_alpha);
 
         setupRadioGroupAp();
 
@@ -55,6 +56,7 @@ public class ApDeployActivity extends BaseActivity {
             ToolUtil.Storage.setValueString(this, "y3", y3.getText().toString());
             ToolUtil.Storage.setValueString(this, "noise", edtNoiseQ.getText().toString());
             ToolUtil.Storage.setValueString(this, "n", edtN.getText().toString());
+            ToolUtil.Storage.setValueString(this, "alpha", edtAlpha.getText().toString());
 
             if (String.valueOf(rgAp.getCheckedRadioButtonId()).contains("67")) {
                 ToolUtil.Storage.setValueString(this, "Bssid1", "b6:e6:2d:23:84:90");
@@ -70,26 +72,59 @@ public class ApDeployActivity extends BaseActivity {
         });
 
         btnResetKf.setOnClickListener(view -> {
-            ToolUtil.Storage.setValueString(this, "rssi_kalman_api1",
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api1_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "rssi_kalman_api2",
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api2_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "rssi_kalman_api3",
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api3_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueInt(this,"i_kalman_ap1", 0);
-            ToolUtil.Storage.setValueInt(this,"i_kalman_ap2", 0);
-            ToolUtil.Storage.setValueInt(this,"i_kalman_ap3", 0);
-            ToolUtil.Storage.setValueString(this, "var_kalman_ap1",
+            ToolUtil.Storage.setValueInt(this, "i_kalman_ap1", 0);
+            ToolUtil.Storage.setValueInt(this, "i_kalman_ap2", 0);
+            ToolUtil.Storage.setValueInt(this, "i_kalman_ap3", 0);
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap1_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "var_kalman_ap2",
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap2_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "var_kalman_ap3",
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap3_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "dist_kalman_ap1",
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap1_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "dist_kalman_ap2",
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap2_type_a",
                     String.valueOf(0));
-            ToolUtil.Storage.setValueString(this, "dist_kalman_ap3",
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap3_type_a",
+                    String.valueOf(0));
+
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api1_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api2_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "rssi_kalman_api3_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap1_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap2_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "var_kalman_ap3_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap1_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap2_type_b",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_kalman_ap3_type_b",
+                    String.valueOf(0));
+
+            ToolUtil.Storage.setValueString(this, "dist_feedback_ap1",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_feedback_ap2",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "dist_feedback_ap3",
+                    String.valueOf(0));
+
+            ToolUtil.Storage.setValueString(this, "pre_rssi_ap1",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "pre_rssi_ap2",
+                    String.valueOf(0));
+            ToolUtil.Storage.setValueString(this, "pre_rssi_ap3",
                     String.valueOf(0));
 
             Queue<Double> rssiListAp1 = EvictingQueue.create(10);
@@ -139,6 +174,7 @@ public class ApDeployActivity extends BaseActivity {
         y3.setText(ToolUtil.Storage.getValueString(this, "y3"));
         edtNoiseQ.setText(ToolUtil.Storage.getValueString(this, "noise"));
         edtN.setText(ToolUtil.Storage.getValueString(this, "n"));
+        edtAlpha.setText(ToolUtil.Storage.getValueString(this, "alpha"));
     }
 
     @Override

@@ -18,12 +18,22 @@ public class AccessPoint {
 
     private String distance;
 
-    private String rssiKalman;
+    private String rssiKalmanTypeA;
 
-    private String distanceKalman;
+    private String rssiKalmanTypeB;
+
+    private String rssiFeedback;
+
+    private String distanceKalmanTypeA;
+
+    private String distanceKalmanTypeB;
+
+    private String distanceFeedback;
 
     public AccessPoint(String name, String level, String freq, String cap,
-            String distance, String ch, String bssid, String rssiKalman, String distanceKalman) {
+            String distance, String ch, String bssid, String rssiKalmanTypeA, final String rssiKalmanTypeB,
+            final String rssiFeedback, String distanceKalmanTypeA, final String distanceKalmanTypeB,
+            final String distanceFeedback) {
         this.name = name;
         this.level = level;
         this.freq = freq;
@@ -31,20 +41,53 @@ public class AccessPoint {
         this.distance = distance;
         this.ch = ch;
         this.bssid = bssid;
-        this.rssiKalman = rssiKalman;
-        this.distanceKalman = distanceKalman;
+        this.rssiKalmanTypeA = rssiKalmanTypeA;
+        this.rssiKalmanTypeB = rssiKalmanTypeB;
+        this.rssiFeedback = rssiFeedback;
+        this.distanceKalmanTypeA = distanceKalmanTypeA;
+        this.distanceKalmanTypeB = distanceKalmanTypeB;
+        this.distanceFeedback = distanceFeedback;
+    }
+
+    public AccessPoint(String name, String level, String freq, String cap,
+            String distance, String ch, String bssid, String rssiKalmanTypeA, String distanceKalmanTypeA) {
+        this.name = name;
+        this.level = level;
+        this.freq = freq;
+        this.cap = cap;
+        this.distance = distance;
+        this.ch = ch;
+        this.bssid = bssid;
+        this.rssiKalmanTypeA = rssiKalmanTypeA;
+        this.distanceKalmanTypeA = distanceKalmanTypeA;
     }
 
     public String getBssid() {
         return bssid;
     }
 
-    public String getDistanceKalman() {
-        return distanceKalman;
+    public String getDistanceFeedback() {
+        return distanceFeedback;
     }
 
-    public String getRssiKalman() {
-        return rssiKalman;
+    public String getDistanceKalmanTypeA() {
+        return distanceKalmanTypeA;
+    }
+
+    public String getDistanceKalmanTypeB() {
+        return distanceKalmanTypeB;
+    }
+
+    public String getRssiFeedback() {
+        return rssiFeedback;
+    }
+
+    public String getRssiKalmanTypeA() {
+        return rssiKalmanTypeA;
+    }
+
+    public String getRssiKalmanTypeB() {
+        return rssiKalmanTypeB;
     }
 
     public void setBssid(String bssid) {

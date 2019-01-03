@@ -16,11 +16,23 @@ public class BaseActivity extends AppCompatActivity {
 
     String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos, bssid1, bssid2, bssid3, noise, n;
 
-    double variansiAp1 = 0;
+    double variansiAp1TypeA = 0;
 
-    double variansiAp2 = 0;
+    double variansiAp2TypeA = 0;
 
-    double variansiAp3 = 0;
+    double variansiAp3TypeA = 0;
+
+    double variansiAp1TypeB = 0;
+
+    double variansiAp2TypeB = 0;
+
+    double variansiAp3TypeB = 0;
+
+    double preRssiAp1KFTypeB = 0;
+
+    double preRssiAp2KFTypeB = 0;
+
+    double preRssiAp3KFTypeB = 0;
 
     int iAp1 = 0;
 
@@ -28,17 +40,41 @@ public class BaseActivity extends AppCompatActivity {
 
     int iAp3 = 0;
 
-    Queue<Double> rssiListAp1 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp1 = EvictingQueue.create(10);
 
-    Queue<Double> rssiListAp2 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp2 = EvictingQueue.create(10);
 
-    Queue<Double> rssiListAp3 = EvictingQueue.create(10);
+    Queue<Double> rssiKFQueueAp3 = EvictingQueue.create(10);
 
-    ArrayList<Double> kfAlgoAp1 = new ArrayList<>();
+    ArrayList<Double> rssiListAp1 = new ArrayList<>();
 
-    ArrayList<Double> kfAlgoAp2 = new ArrayList<>();
+    ArrayList<Double> rssiListAp2 = new ArrayList<>();
 
-    ArrayList<Double> kfAlgoAp3 = new ArrayList<>();
+    ArrayList<Double> rssiListAp3 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp1 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp3 = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp1TypeA = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp2TypeA = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp3TypeA = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp1TypeB = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp2TypeB = new ArrayList<>();
+
+    ArrayList<Double> kfAlgoAp3TypeB = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp1 = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp2 = new ArrayList<>();
+
+    ArrayList<Double> fbAlgoAp3 = new ArrayList<>();
 
     List<Double> xy;
 
@@ -54,9 +90,18 @@ public class BaseActivity extends AppCompatActivity {
 
         tinydb = new TinyDB(this);
 
-        variansiAp1 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1", "0"));
-        variansiAp2 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2", "0"));
-        variansiAp3 = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3", "0"));
+        variansiAp1TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1_type_a", "0"));
+        variansiAp2TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2_type_a", "0"));
+        variansiAp3TypeA = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3_type_a", "0"));
+
+        variansiAp1TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap1_type_b", "0"));
+        variansiAp1TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap2_type_b", "0"));
+        variansiAp1TypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "var_kalman_ap3_type_b", "0"));
+
+        preRssiAp1KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap1", "0"));
+        preRssiAp2KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap2", "0"));
+        preRssiAp3KFTypeB = Double.parseDouble(ToolUtil.Storage.getValueString(this, "pre_rssi_ap3", "0"));
+
         iAp1 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap1", 0);
         iAp2 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap2", 0);
         iAp3 = ToolUtil.Storage.getValueInt(this, "i_kalman_ap3", 0);
@@ -78,6 +123,7 @@ public class BaseActivity extends AppCompatActivity {
 
         noise = ToolUtil.Storage.getValueString(this, "noise", "");
         n = ToolUtil.Storage.getValueString(this, "n", "");
+        n = ToolUtil.Storage.getValueString(this, "alpha", "");
     }
 
 }

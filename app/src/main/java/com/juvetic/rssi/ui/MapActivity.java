@@ -109,11 +109,11 @@ public class MapActivity extends BaseActivity {
             public void onMapLoadError() {
             }
         });
-        mapView.loadMap(AssetsHelper.getContent(this, "hes_lab.svg"));
+        mapView.loadMap(AssetsHelper.getContent(this, "hes_lab_v2.svg"));
 
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 10, Color.RED, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 10, Color.GREEN, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 10, Color.BLUE, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 20, Color.RED, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 20, Color.GREEN, 1000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 20, Color.BLUE, 1000);
         mapView.getController().setScrollGestureEnabled(false);
         mapView.getController().setZoomGestureEnabled(false);
 
@@ -149,8 +149,7 @@ public class MapActivity extends BaseActivity {
                                             .getValueString(MapActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    "0",
-                                    "0");
+                                    "0", "0");
                             accessPointList.add(accessPoint);
 
                             d1 = accessPoint.getDistance();
@@ -167,8 +166,7 @@ public class MapActivity extends BaseActivity {
                                             .getValueString(MapActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    "0",
-                                    "0");
+                                    "0", "0");
                             d2 = accessPoint.getDistance();
                             Log.d("=======d2 ", "onMapLoadComplete: " + d2);
                             ToolUtil.Storage.setValueString(MapActivity.this, "d2", String.valueOf(d2));
@@ -183,8 +181,7 @@ public class MapActivity extends BaseActivity {
                                             .getValueString(MapActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
-                                    "0",
-                                    "0");
+                                    "0", "0");
                             accessPointList.add(accessPoint);
                             d3 = accessPoint.getDistance();
                             Log.d("=======d3 ", "onMapLoadComplete: " + d3);

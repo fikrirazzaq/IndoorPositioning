@@ -49,7 +49,7 @@ public class InformationDialog extends BottomSheetDialogFragment {
         y2.setText(ToolUtil.Storage.getValueString(getContext(), "y2"));
         x3.setText(ToolUtil.Storage.getValueString(getContext(), "x3"));
         y3.setText(ToolUtil.Storage.getValueString(getContext(), "y3"));
-        d1.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap1"));
+        d1.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap1_type_a"));
         d2.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap2"));
         d3.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap3"));
         xPos.setText(ToolUtil.Storage.getValueString(getContext(), "xPos"));
