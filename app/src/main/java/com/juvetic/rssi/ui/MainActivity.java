@@ -35,8 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -75,6 +73,18 @@ public class MainActivity extends BaseActivity {
     ArrayList<Double> rssiKFListAp2 = new ArrayList<>();
 
     ArrayList<Double> rssiKFListAp3 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp1v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp2v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp3v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp1 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp2 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp3 = new ArrayList<>();
 
     ArrayList<Double> kfAlgoAp1TypeA = new ArrayList<>();
 
@@ -190,7 +200,10 @@ public class MainActivity extends BaseActivity {
                 saveExcelFile(MainActivity.this, "List RSSI.xls",
                         rssiListAp1, rssiKFListAp1,
                         rssiListAp2, rssiKFListAp2,
-                        rssiListAp3, rssiKFListAp3);
+                        rssiListAp3, rssiKFListAp3,
+                        rssiKFListAp1v2, rssiKFListAp2v2,
+                        rssiKFListAp3v2, rssiFBListAp1,
+                        rssiFBListAp2, rssiFBListAp3);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -283,6 +296,8 @@ public class MainActivity extends BaseActivity {
 
                             rssiListAp1.add((double) scanResult.level);
                             rssiKFListAp1.add(kfAlgoAp1TypeA.get(3));
+                            rssiKFListAp1v2.add(kfAlgoAp1TypeB.get(3));
+                            rssiFBListAp1.add(fbAlgoAp1.get(3));
 
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap1",
                                     iAp1);
@@ -383,6 +398,8 @@ public class MainActivity extends BaseActivity {
 
                             rssiListAp2.add((double) scanResult.level);
                             rssiKFListAp2.add(kfAlgoAp2TypeA.get(3));
+                            rssiKFListAp2v2.add(kfAlgoAp2TypeB.get(3));
+                            rssiFBListAp2.add(fbAlgoAp2.get(3));
 
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap2", iAp2);
                             ToolUtil.Storage.setValueString(MainActivity.this, "pre_rssi_ap2",
@@ -482,6 +499,8 @@ public class MainActivity extends BaseActivity {
 
                             rssiListAp3.add((double) scanResult.level);
                             rssiKFListAp3.add(kfAlgoAp3TypeA.get(3));
+                            rssiKFListAp3v2.add(kfAlgoAp3TypeB.get(3));
+                            rssiFBListAp3.add(fbAlgoAp3.get(3));
 
                             ToolUtil.Storage.setValueInt(MainActivity.this, "i_kalman_ap3", iAp3);
                             ToolUtil.Storage.setValueString(MainActivity.this, "pre_rssi_ap3",
@@ -596,7 +615,10 @@ public class MainActivity extends BaseActivity {
     private static boolean saveExcelFile(Context context, String fileName,
             ArrayList<Double> rssiListAp1, ArrayList<Double> rssiKFListAp1,
             ArrayList<Double> rssiListAp2, ArrayList<Double> rssiKFListAp2,
-            ArrayList<Double> rssiListAp3, ArrayList<Double> rssiKFListAp3) {
+            ArrayList<Double> rssiListAp3, ArrayList<Double> rssiKFListAp3,
+            ArrayList<Double> rssiKFListAp1v2, ArrayList<Double> rssiKFListAp2v2,
+            ArrayList<Double> rssiKFListAp3v2, ArrayList<Double> rssiFBListAp1,
+            ArrayList<Double> rssiFBListAp2, ArrayList<Double> rssiFBListAp3) {
 
         // check if available and not read only
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
@@ -609,65 +631,42 @@ public class MainActivity extends BaseActivity {
         //New Workbook
         Workbook wb = new HSSFWorkbook();
 
-        Cell c = null;
-
-        //Cell style for header row
-//        CellStyle cs = wb.createCellStyle();
-//        cs.setFillForegroundColor(HSSFColor.LIME.index);
-//        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-
         //New Sheet
         Sheet sheetRssiAp1 = wb.createSheet("AP1");
-        Sheet sheetRssiAp1KF = wb.createSheet("AP1 KF");
+        Sheet sheetRssiAp1KF = wb.createSheet("AP1 KFv1");
+        Sheet sheetRssiAp1KF2 = wb.createSheet("AP1 KFv2");
+        Sheet sheetRssiAp1FB = wb.createSheet("AP1 Feedback");
         Sheet sheetRssiAp2 = wb.createSheet("AP2");
-        Sheet sheetRssiAp2KF = wb.createSheet("AP2 KF");
+        Sheet sheetRssiAp2KF = wb.createSheet("AP2 KFv1");
+        Sheet sheetRssiAp2KF2 = wb.createSheet("AP2 KFv2");
+        Sheet sheetRssiAp2FB = wb.createSheet("AP2 Feedback");
         Sheet sheetRssiAp3 = wb.createSheet("AP3");
-        Sheet sheetRssiAp3KF = wb.createSheet("AP3 KF");
-
-        // Generate column headings
-        Row row = sheetRssiAp1KF.createRow(0);
-//
-//        c = row.createCell(0);
-//        c.setCellValue("AP1 - RSSI");
-//        c = row.createCell(1);
-//        c.setCellValue("AP1 - RSSI KF");
-//        c = row.createCell(2);
-//        c.setCellValue("AP2 - RSSI");
-//        c = row.createCell(3);
-//        c.setCellValue("AP2 - RSSI KF");
-//        c = row.createCell(4);
-//        c.setCellValue("AP3 - RSSI");
-//        c = row.createCell(5);
-//        c.setCellValue("AP3 - RSSI KF");
+        Sheet sheetRssiAp3KF = wb.createSheet("AP3 KFv1");
+        Sheet sheetRssiAp3KF2 = wb.createSheet("AP3 KFv2");
+        Sheet sheetRssiAp3FB = wb.createSheet("AP3 Feedback");
 
         // AP1 RSSI
         for (int i = 0; i < rssiListAp1.size(); i++) {
             sheetRssiAp1.createRow(i).createCell(0).setCellValue(rssiListAp1.get(i));
-        }
-
-        // AP1 RSSI KF
-        for (int i = 0; i < rssiKFListAp1.size(); i++) {
             sheetRssiAp1KF.createRow(i).createCell(0).setCellValue(rssiKFListAp1.get(i));
+            sheetRssiAp1KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp1v2.get(i));
+            sheetRssiAp1FB.createRow(i).createCell(0).setCellValue(rssiFBListAp1.get(i));
         }
 
         // AP2 RSSI
         for (int i = 0; i < rssiListAp2.size(); i++) {
             sheetRssiAp2.createRow(i).createCell(0).setCellValue(rssiListAp2.get(i));
-        }
-
-        // AP2 RSSI KF
-        for (int i = 0; i < rssiKFListAp2.size(); i++) {
             sheetRssiAp2KF.createRow(i).createCell(0).setCellValue(rssiKFListAp2.get(i));
+            sheetRssiAp2KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp2v2.get(i));
+            sheetRssiAp2FB.createRow(i).createCell(0).setCellValue(rssiFBListAp2.get(i));
         }
 
         // AP3 RSSI
         for (int i = 0; i < rssiListAp3.size(); i++) {
             sheetRssiAp3.createRow(i).createCell(0).setCellValue(rssiListAp3.get(i));
-        }
-
-        // AP3 RSSI KF
-        for (int i = 0; i < rssiKFListAp3.size(); i++) {
             sheetRssiAp3KF.createRow(i).createCell(0).setCellValue(rssiKFListAp3.get(i));
+            sheetRssiAp3KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp3v2.get(i));
+            sheetRssiAp3FB.createRow(i).createCell(0).setCellValue(rssiFBListAp3.get(i));
         }
 
         // Create a path where we will place our List of objects on external storage
