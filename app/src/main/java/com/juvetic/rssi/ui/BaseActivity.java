@@ -14,7 +14,11 @@ public class BaseActivity extends AppCompatActivity {
 
     TinyDB tinydb;
 
-    String x1, y1, x2, y2, x3, y3, d1, d2, d3, xPos, yPos, bssid1, bssid2, bssid3, noise, n, alpha;
+    String x1, y1, x2, y2, x3, y3,
+            d1, d2, d3,
+            xPos, yPos, xPosKalman1, yPosKalman1, xPosKalman2, yPosKalman2, xPosFeedback, yPosFeedback,
+            bssid1, bssid2, bssid3,
+            noise, n, alpha;
 
     double variansiAp1TypeA = 0;
 
@@ -78,6 +82,12 @@ public class BaseActivity extends AppCompatActivity {
 
     List<Double> xy;
 
+    List<Double> xyKalman1;
+
+    List<Double> xyKalman2;
+
+    List<Double> xyFeedback;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +127,12 @@ public class BaseActivity extends AppCompatActivity {
         d3 = ToolUtil.Storage.getValueString(this, "d3", "");
         xPos = ToolUtil.Storage.getValueString(this, "xPos", "");
         yPos = ToolUtil.Storage.getValueString(this, "yPos", "");
+        xPosKalman1 = ToolUtil.Storage.getValueString(this, "xPosKalman1", "");
+        yPosKalman1 = ToolUtil.Storage.getValueString(this, "yPosKalman1", "");
+        xPosKalman2 = ToolUtil.Storage.getValueString(this, "xPosKalman2", "");
+        yPosKalman2 = ToolUtil.Storage.getValueString(this, "yPosKalman2", "");
+        xPosFeedback = ToolUtil.Storage.getValueString(this, "xPosFeedback", "");
+        yPosFeedback = ToolUtil.Storage.getValueString(this, "yPosFeedback", "");
         bssid1 = ToolUtil.Storage.getValueString(this, "Bssid1", "");
         bssid2 = ToolUtil.Storage.getValueString(this, "Bssid2", "");
         bssid3 = ToolUtil.Storage.getValueString(this, "Bssid3", "");

@@ -13,7 +13,7 @@ import com.juvetic.rssi.util.ToolUtil;
 
 public class DashboardActivity extends BaseActivity implements OnClickListener {
 
-    Button list, mapKalman, apdeploy, mapNonKalman, mapKalmanB, mapFeedback;
+    Button list, mapKalman, apdeploy, mapNonKalman, mapKalmanB, mapFeedback, mapAll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +31,7 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
         apdeploy = findViewById(R.id.btn_apdeploy);
         mapKalmanB = findViewById(R.id.btn_map_kalman_type_b);
         mapFeedback = findViewById(R.id.btn_map_feedback);
+        mapAll = findViewById(R.id.btn_map_all);
 
         list.setOnClickListener(this);
         mapKalman.setOnClickListener(this);
@@ -38,6 +39,7 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
         apdeploy.setOnClickListener(this);
         mapKalmanB.setOnClickListener(this);
         mapFeedback.setOnClickListener(this);
+        mapAll.setOnClickListener(this);
 
         initVal();
     }
@@ -149,6 +151,17 @@ public class DashboardActivity extends BaseActivity implements OnClickListener {
                     Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
                 } else {
                     PageUtil.getInstance().jumpToMap(DashboardActivity.this, MapFilterActivity.class,
+                            "feedback");
+                }
+                break;
+
+            case R.id.btn_map_all:
+                if (x1.equals("") || y1.equals("") || x2.equals("") || y2.equals("")
+                        || x3.equals("") || y3.equals("")
+                        || noise.equals("") || n.equals("") || alpha.equals("")) {
+                    Toast.makeText(this, "Please fill AP Deploy", Toast.LENGTH_SHORT).show();
+                } else {
+                    PageUtil.getInstance().jumpToMap(DashboardActivity.this, MapShowAllFilterActivity.class,
                             "feedback");
                 }
                 break;

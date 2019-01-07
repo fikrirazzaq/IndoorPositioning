@@ -127,4 +127,24 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_map_kalman_type_b"
         tools:targetApi="lollipop" />
 
+    <Button
+        android:id="@+id/btn_map_all"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/white"
+        android:drawableLeft="@drawable/ic_waypoint_map"
+        android:drawablePadding="@dimen/dp_4"
+        android:drawableStart="@drawable/ic_waypoint_map"
+        android:text="@string/map_with_all_filter"
+        android:textSize="@dimen/sp_12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_map_feedback"
+        tools:targetApi="lollipop" />
+
 </android.support.constraint.ConstraintLayout>

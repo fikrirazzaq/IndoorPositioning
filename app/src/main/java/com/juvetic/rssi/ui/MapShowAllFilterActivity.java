@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-public class MapFilterActivity extends BaseActivity {
+public class MapShowAllFilterActivity extends BaseActivity {
 
     public static final String EXTRA_FILTER = "extra_filter";
 
@@ -48,17 +47,36 @@ public class MapFilterActivity extends BaseActivity {
 
     double d3 = 0;
 
-    String filter = "";
+    double d1Kalman1 = 0;
+
+    double d2Kalman1 = 0;
+
+    double d3Kalman1 = 0;
+
+    double d1Kalman2 = 0;
+
+    double d2Kalman2 = 0;
+
+    double d3Kalman2 = 0;
+
+    double d1Feedback = 0;
+
+    double d2Feedback = 0;
+
+    double d3Feedback = 0;
+
+    String filter = "default";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map_show_all_filter);
 
         setContentView(R.layout.activity_location);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiReceiver = new MapFilterActivity.WifiScanReceiver();
+        wifiReceiver = new MapShowAllFilterActivity.WifiScanReceiver();
         wifiManager.startScan();
 
         mapView = findViewById(R.id.location_mapview);
@@ -66,18 +84,9 @@ public class MapFilterActivity extends BaseActivity {
         Intent intent = getIntent();
         filter = intent.getStringExtra(EXTRA_FILTER);
 
-        if (filter.equals("kalman1")) {
-            setTitle("Map - KF1");
-        } else if (filter.equals("kalman2")) {
-            setTitle("Map - KF2");
-        } else if (filter.equals("feedback")) {
-            setTitle("Map - Feedback");
-        }
+        setTitle("Map - All Filter");
     }
 
-    //78:8a:20:d4:a4:d8
-    //78:8a:20:d4:a9:74
-    //78:8a:20:d4:ac:28
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.map_menu, menu);
@@ -89,45 +98,12 @@ public class MapFilterActivity extends BaseActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.map_menu_deploy:
-                InformationDialog bottomSheetDialog = InformationDialog.getInstance();
+                InformationDialogMapAll bottomSheetDialog = InformationDialogMapAll.getInstance();
                 bottomSheetDialog.show(getSupportFragmentManager(), "Custom Bottom Sheet");
                 return true;
             case R.id.map_menu_reload:
                 wifiManager.startScan();
                 return true;
-//            case R.id.menu_filterby_kalman_type_a:
-//                Toast.makeText(this, "Filter by KF Type A", Toast.LENGTH_SHORT).show();
-//                item.setChecked(true);
-//
-//                d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap1_type_a"));
-//                d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap2_type_a"));
-//                d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap3_type_a"));
-//                return true;
-//            case R.id.menu_filterby_kalman_type_b:
-//                Toast.makeText(this, "Filter by KF Type B", Toast.LENGTH_SHORT).show();
-//                item.setChecked(true);
-//
-//                d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap1_type_b"));
-//                d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap2_type_b"));
-//                d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_kalman_ap3_type_b"));
-//                return true;
-//            case R.id.menu_filterby_feedback:
-//                Toast.makeText(this, "Filter by Feedback", Toast.LENGTH_SHORT).show();
-//                item.setChecked(true);
-//
-//                d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_feedback_ap1"));
-//                d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_feedback_ap2"));
-//                d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-//                        (MapFilterActivity.this, "dist_feedback_ap3"));
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -164,9 +140,11 @@ public class MapFilterActivity extends BaseActivity {
         });
         mapView.loadMap(AssetsHelper.getContent(this, "hes_lab_v2.svg"));
 
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 20, Color.RED, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 20, Color.GREEN, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 20, Color.BLUE, 1000);
+        mapView.getController()
+                .sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 20, Color.YELLOW, 10000);
+        mapView.getController()
+                .sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 20, Color.GREEN, 10000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 20, Color.BLUE, 10000);
         mapView.getController().setScrollGestureEnabled(false);
         mapView.getController().setZoomGestureEnabled(false);
 
@@ -200,25 +178,27 @@ public class MapFilterActivity extends BaseActivity {
                             if (iAp1 == 0) {
                                 // KF Type A
                                 kfAlgoAp1TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp1, 1, Double.parseDouble
-                                        (ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                        (ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp1TypeA = kfAlgoAp1TypeA.get(4);
 
                                 // KF Type B
                                 kfAlgoAp1TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp1, preRssiAp1KFTypeB, 1,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 preRssiAp1KFTypeB = kfAlgoAp1TypeB.get(3);
                                 variansiAp1TypeB = kfAlgoAp1TypeB.get(4);
 
                                 // Feedback
                                 fbAlgoAp1 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             } else {
                                 // KF Type A
                                 kfAlgoAp1TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp1, variansiAp1TypeA,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp1TypeA = kfAlgoAp1TypeA.get(4);
 
                                 // KF Type B
@@ -226,7 +206,8 @@ public class MapFilterActivity extends BaseActivity {
                                         .applyKFAlgorithmTypeB(rssiKFQueueAp1, preRssiAp1KFTypeB, variansiAp1TypeB,
                                                 Double.parseDouble(
                                                         ToolUtil.Storage
-                                                                .getValueString(MapFilterActivity.this, "noise")));
+                                                                .getValueString(MapShowAllFilterActivity.this,
+                                                                        "noise")));
                                 preRssiAp1KFTypeB = kfAlgoAp1TypeB.get(3);
                                 variansiAp1TypeB = kfAlgoAp1TypeB.get(4);
 
@@ -234,26 +215,26 @@ public class MapFilterActivity extends BaseActivity {
                                 fbAlgoAp1 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp1TypeA.get(0),
                                         (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             }
                             iAp1 += 1;
 
                             rssiListAp1.add((double) scanResult.level);
                             rssiKFListAp1.add(kfAlgoAp1TypeA.get(3));
 
-                            ToolUtil.Storage.setValueInt(MapFilterActivity.this, "i_kalman_ap1",
+                            ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap1",
                                     iAp1);
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "pre_rssi_ap1",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "pre_rssi_ap1",
                                     String.valueOf(preRssiAp1KFTypeB));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap1_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap1_type_a",
                                     String.valueOf(kfAlgoAp1TypeA.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap1_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap1_type_a",
                                     String.valueOf(variansiAp1TypeA));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap1_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap1_type_b",
                                     String.valueOf(kfAlgoAp1TypeB.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap1_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap1_type_b",
                                     String.valueOf(variansiAp1TypeB));
 
                             accessPoint = new AccessPoint(
@@ -262,7 +243,7 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
                                     Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MapFilterActivity.this, "n"))),
+                                            .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp1TypeA.get(3)) + " dBm",
@@ -270,19 +251,21 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(fbAlgoAp1.get(3)) + " dBm",
                                     Formula.distance
                                             (kfAlgoAp1TypeA.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance
                                             (kfAlgoAp1TypeB.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance(
                                             fbAlgoAp1.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n")))
+                                                    .getValueString(MapShowAllFilterActivity.this, "n")))
                             );
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap1_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "d1",
+                                    accessPoint.getDistance());
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap1_type_a",
                                     accessPoint.getDistanceKalmanTypeA());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap1_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap1_type_b",
                                     accessPoint.getDistanceKalmanTypeB());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_feedback_ap1",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_feedback_ap1",
                                     accessPoint.getDistanceFeedback());
                             accessPointList.add(accessPoint);
                             break;
@@ -297,25 +280,28 @@ public class MapFilterActivity extends BaseActivity {
                                 // KF Type A
                                 kfAlgoAp2TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp2, 1,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp2TypeA = kfAlgoAp2TypeA.get(4);
 
                                 // KF Type B
                                 kfAlgoAp2TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp2, preRssiAp2KFTypeB, 1,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 preRssiAp2KFTypeB = kfAlgoAp2TypeB.get(3);
                                 variansiAp2TypeB = kfAlgoAp2TypeB.get(4);
 
                                 // Feedback
                                 fbAlgoAp2 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             } else {
                                 // KF Type A
                                 kfAlgoAp2TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp2, variansiAp2TypeA,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp2TypeA = kfAlgoAp2TypeA.get(4);
 
                                 // KF Type B
@@ -323,7 +309,8 @@ public class MapFilterActivity extends BaseActivity {
                                         .applyKFAlgorithmTypeB(rssiKFQueueAp2, preRssiAp2KFTypeB, variansiAp2TypeB,
                                                 Double.parseDouble(
                                                         ToolUtil.Storage
-                                                                .getValueString(MapFilterActivity.this, "noise")));
+                                                                .getValueString(MapShowAllFilterActivity.this,
+                                                                        "noise")));
                                 preRssiAp2KFTypeB = kfAlgoAp2TypeB.get(3);
                                 variansiAp2TypeB = kfAlgoAp2TypeB.get(4);
 
@@ -331,25 +318,25 @@ public class MapFilterActivity extends BaseActivity {
                                 fbAlgoAp2 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp2TypeA.get(0),
                                         (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             }
                             iAp2 += 1;
 
                             rssiListAp2.add((double) scanResult.level);
                             rssiKFListAp2.add(kfAlgoAp2TypeA.get(3));
 
-                            ToolUtil.Storage.setValueInt(MapFilterActivity.this, "i_kalman_ap2", iAp2);
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "pre_rssi_ap2",
+                            ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap2", iAp2);
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "pre_rssi_ap2",
                                     String.valueOf(preRssiAp2KFTypeB));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap2_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap2_type_a",
                                     String.valueOf(kfAlgoAp2TypeA.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap2_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap2_type_a",
                                     String.valueOf(variansiAp2TypeA));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap2_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap2_type_b",
                                     String.valueOf(kfAlgoAp2TypeB.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap2_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap2_type_b",
                                     String.valueOf(variansiAp2TypeB));
 
                             accessPoint = new AccessPoint(
@@ -358,7 +345,7 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
                                     Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MapFilterActivity.this, "n"))),
+                                            .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp2TypeA.get(3)) + " dBm",
@@ -366,20 +353,22 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(fbAlgoAp2.get(3)) + " dBm",
                                     Formula.distance
                                             (kfAlgoAp2TypeA.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance
                                             (kfAlgoAp2TypeB.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance(
                                             fbAlgoAp2.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n")))
+                                                    .getValueString(MapShowAllFilterActivity.this, "n")))
                             );
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap2_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "d2",
+                                    accessPoint.getDistance());
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap2_type_a",
                                     accessPoint.getDistanceKalmanTypeA());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap2_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap2_type_b",
                                     accessPoint.getDistanceKalmanTypeB());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_feedback_ap2",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_feedback_ap2",
                                     accessPoint.getDistanceFeedback());
 
                             accessPointList.add(accessPoint);
@@ -395,25 +384,28 @@ public class MapFilterActivity extends BaseActivity {
                                 // KF Type A
                                 kfAlgoAp3TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp3, 1,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp3TypeA = kfAlgoAp3TypeA.get(4);
 
                                 // KF Type B
                                 kfAlgoAp3TypeB = Formula.applyKFAlgorithmTypeB(rssiKFQueueAp3, preRssiAp3KFTypeB, 1,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 preRssiAp3KFTypeB = kfAlgoAp3TypeB.get(3);
                                 variansiAp3TypeB = kfAlgoAp3TypeB.get(4);
 
                                 // Feedback
                                 fbAlgoAp3 = Formula.applyFeedbackFilterAlgorithm(0, (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             } else {
                                 // KF Type A
                                 kfAlgoAp3TypeA = Formula.applyKFAlgorithmTypeA(rssiKFQueueAp3, variansiAp3TypeA,
                                         Double.parseDouble(
-                                                ToolUtil.Storage.getValueString(MapFilterActivity.this, "noise")));
+                                                ToolUtil.Storage
+                                                        .getValueString(MapShowAllFilterActivity.this, "noise")));
                                 variansiAp3TypeA = kfAlgoAp3TypeA.get(4);
 
                                 // KF Type B
@@ -421,7 +413,8 @@ public class MapFilterActivity extends BaseActivity {
                                         .applyKFAlgorithmTypeB(rssiKFQueueAp3, preRssiAp3KFTypeB, variansiAp3TypeB,
                                                 Double.parseDouble(
                                                         ToolUtil.Storage
-                                                                .getValueString(MapFilterActivity.this, "noise")));
+                                                                .getValueString(MapShowAllFilterActivity.this,
+                                                                        "noise")));
                                 preRssiAp3KFTypeB = kfAlgoAp3TypeB.get(3);
                                 variansiAp3TypeB = kfAlgoAp3TypeB.get(4);
 
@@ -429,25 +422,25 @@ public class MapFilterActivity extends BaseActivity {
                                 fbAlgoAp3 = Formula.applyFeedbackFilterAlgorithm(kfAlgoAp3TypeA.get(0),
                                         (double) scanResult.level,
                                         Double.parseDouble(ToolUtil.Storage
-                                                .getValueString(MapFilterActivity.this, "alpha")));
+                                                .getValueString(MapShowAllFilterActivity.this, "alpha")));
                             }
                             iAp3 += 1;
 
                             rssiListAp3.add((double) scanResult.level);
                             rssiKFListAp3.add(kfAlgoAp3TypeA.get(3));
 
-                            ToolUtil.Storage.setValueInt(MapFilterActivity.this, "i_kalman_ap3", iAp3);
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "pre_rssi_ap3",
+                            ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap3", iAp3);
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "pre_rssi_ap3",
                                     String.valueOf(preRssiAp3KFTypeB));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap3_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap3_type_a",
                                     String.valueOf(kfAlgoAp3TypeA.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap3_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap3_type_a",
                                     String.valueOf(variansiAp3TypeA));
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "rssi_kalman_ap3_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "rssi_kalman_ap3_type_b",
                                     String.valueOf(kfAlgoAp3TypeB.get(3)));
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "var_kalman_ap3_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "var_kalman_ap3_type_b",
                                     String.valueOf(variansiAp3TypeB));
 
                             accessPoint = new AccessPoint(
@@ -456,7 +449,7 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
                                     Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MapFilterActivity.this, "n"))),
+                                            .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     String.valueOf(kfAlgoAp3TypeA.get(3)) + " dBm",
@@ -464,20 +457,22 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(fbAlgoAp3.get(3)) + " dBm",
                                     Formula.distance
                                             (kfAlgoAp3TypeA.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance
                                             (kfAlgoAp3TypeB.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n"))),
+                                                    .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     Formula.distance(
                                             fbAlgoAp3.get(3), Double.parseDouble(ToolUtil.Storage
-                                                    .getValueString(MapFilterActivity.this, "n")))
+                                                    .getValueString(MapShowAllFilterActivity.this, "n")))
                             );
 
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap3_type_a",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "d3",
+                                    accessPoint.getDistance());
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap3_type_a",
                                     accessPoint.getDistanceKalmanTypeA());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_kalman_ap3_type_b",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_kalman_ap3_type_b",
                                     accessPoint.getDistanceKalmanTypeB());
-                            ToolUtil.Storage.setValueString(MapFilterActivity.this, "dist_feedback_ap3",
+                            ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "dist_feedback_ap3",
                                     accessPoint.getDistanceFeedback());
 
                             accessPointList.add(accessPoint);
@@ -489,7 +484,7 @@ public class MapFilterActivity extends BaseActivity {
                                     String.valueOf(scanResult.frequency) + " MHz",
                                     scanResult.capabilities,
                                     Formula.distance((double) scanResult.level, Double.parseDouble(ToolUtil.Storage
-                                            .getValueString(MapFilterActivity.this, "n"))),
+                                            .getValueString(MapShowAllFilterActivity.this, "n"))),
                                     String.valueOf(level),
                                     scanResult.BSSID,
                                     "0 dBm",
@@ -504,80 +499,119 @@ public class MapFilterActivity extends BaseActivity {
                     }
                 }
 
-                switch (filter) {
-                    case "kalman1":
-                        d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap1_type_a"));
-                        d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap2_type_a"));
-                        d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap3_type_a"));
-                        break;
-                    case "kalman2":
-                        d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap1_type_b"));
-                        d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap2_type_b"));
-                        d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_kalman_ap3_type_b"));
-                        break;
-                    case "feedback":
-                        d1 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_feedback_ap1"));
-                        d2 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_feedback_ap2"));
-                        d3 = Double.parseDouble(ToolUtil.Storage.getValueString
-                                (MapFilterActivity.this, "dist_feedback_ap3"));
-                        break;
-                }
+                d1 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "d1"));
+                d2 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "d2"));
+                d3 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "d3"));
+
+                d1Kalman1 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap1_type_a"));
+                d2Kalman1 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap2_type_a"));
+                d3Kalman1 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap3_type_a"));
+
+                d1Kalman2 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap1_type_b"));
+                d2Kalman2 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap2_type_b"));
+                d3Kalman2 = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_kalman_ap3_type_b"));
+
+                d1Feedback = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_feedback_ap1"));
+                d2Feedback = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_feedback_ap2"));
+                d3Feedback = Double.parseDouble(ToolUtil.Storage.getValueString
+                        (MapShowAllFilterActivity.this, "dist_feedback_ap3"));
 
                 xy = Formula.koordinat(
                         Double.valueOf(x1), Double.valueOf(y1), d1,
                         Double.valueOf(x2), Double.valueOf(y2), d2,
                         Double.valueOf(x3), Double.valueOf(y3), d3);
-                ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "d1_filter", String.valueOf(d1));
-                ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "d2_filter", String.valueOf(d2));
-                ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "d3_filter", String.valueOf(d3));
+
+                xyKalman1 = Formula.koordinat(
+                        Double.valueOf(x1), Double.valueOf(y1), d1Kalman1,
+                        Double.valueOf(x2), Double.valueOf(y2), d2Kalman1,
+                        Double.valueOf(x3), Double.valueOf(y3), d3Kalman1);
+
+                xyKalman2 = Formula.koordinat(
+                        Double.valueOf(x1), Double.valueOf(y1), d1Kalman2,
+                        Double.valueOf(x2), Double.valueOf(y2), d2Kalman2,
+                        Double.valueOf(x3), Double.valueOf(y3), d3Kalman2);
+
+                xyFeedback = Formula.koordinat(
+                        Double.valueOf(x1), Double.valueOf(y1), d1Feedback,
+                        Double.valueOf(x2), Double.valueOf(y2), d2Feedback,
+                        Double.valueOf(x3), Double.valueOf(y3), d3Feedback);
 
                 ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "xPos_filter", String.valueOf(xy.get(0).floatValue
-                                ()));
+                        .setValueString(MapShowAllFilterActivity.this, "xPos",
+                                String.valueOf(xy.get(0).floatValue()));
                 ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "yPos_filter",
+                        .setValueString(MapShowAllFilterActivity.this, "yPos",
                                 String.valueOf(xy.get(1).floatValue()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "xPosKalman1",
+                                String.valueOf(xyKalman1.get(0).floatValue
+                                        ()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "yPosKalman1",
+                                String.valueOf(xyKalman1.get(1).floatValue
+                                        ()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "xPosKalman2",
+                                String.valueOf(xyKalman2.get(0).floatValue
+                                        ()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "yPosKalman2",
+                                String.valueOf(xyKalman2.get(1).floatValue
+                                        ()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "xPosFeedback",
+                                String.valueOf(xyFeedback.get(0).floatValue
+                                        ()));
+                ToolUtil.Storage
+                        .setValueString(MapShowAllFilterActivity.this, "yPosFeedback",
+                                String.valueOf(xyFeedback.get(1).floatValue
+                                        ()));
 
-                xPos = ToolUtil.Storage.getValueString(MapFilterActivity.this, "xPos_filter");
-                yPos = ToolUtil.Storage.getValueString(MapFilterActivity.this, "yPos_filter");
+                xPos = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "xPos");
+                yPos = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "yPos");
+                xPosKalman1 = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "xPosKalman1");
+                yPosKalman1 = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "yPosKalman1");
+                xPosKalman2 = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "xPosKalman2");
+                yPosKalman2 = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "yPosKalman2");
+                xPosFeedback = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "xPosFeedback");
+                yPosFeedback = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "yPosFeedback");
 
                 mapView.getOverLays().remove(locationOverlay);
+                mapView.getOverLays().remove(locationOverlayKalman1);
+                mapView.getOverLays().remove(locationOverlayKalman2);
+                mapView.getOverLays().remove(locationOverlayFeedback);
 
-                switch (filter) {
-                    case "kalman1":
-                        locationOverlay = new SVGMapLocationOverlay(mapView, "kalman1");
-                        locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
-                        break;
-                    case "kalman2":
-                        locationOverlay = new SVGMapLocationOverlay(mapView, "kalman2");
-                        locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
-                        break;
-                    case "feedback":
-                        locationOverlay = new SVGMapLocationOverlay(mapView, "feedback");
-                        locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
-                        break;
-                    default:
-                        locationOverlay = new SVGMapLocationOverlay(mapView, "default");
-                        locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
-                        break;
-                }
+                locationOverlayKalman1 = new SVGMapLocationOverlay(mapView, "kalman1");
+                locationOverlayKalman1.setPosition(
+                        new PointF(Float.valueOf(xPosKalman1), Float.valueOf(yPosKalman1)));
+
+                locationOverlayKalman2 = new SVGMapLocationOverlay(mapView, "kalman2");
+                locationOverlayKalman2.setPosition(
+                        new PointF(Float.valueOf(xPosKalman2), Float.valueOf(yPosKalman2)));
+
+                locationOverlayFeedback = new SVGMapLocationOverlay(mapView, "feedback");
+                locationOverlayFeedback.setPosition(
+                        new PointF(Float.valueOf(xPosFeedback), Float.valueOf(yPosFeedback)));
+
+                locationOverlay = new SVGMapLocationOverlay(mapView, "default");
+                locationOverlay.setPosition(
+                        new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
 
                 mapView.getOverLays().add(locationOverlay);
+                mapView.getOverLays().add(locationOverlayKalman1);
+                mapView.getOverLays().add(locationOverlayKalman2);
+                mapView.getOverLays().add(locationOverlayFeedback);
                 mapView.refresh();
             }
 
@@ -586,4 +620,5 @@ public class MapFilterActivity extends BaseActivity {
             wifiManager.startScan();
         }
     }
+
 }

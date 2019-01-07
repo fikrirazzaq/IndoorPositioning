@@ -110,9 +110,11 @@ public class MapActivity extends BaseActivity {
         });
         mapView.loadMap(AssetsHelper.getContent(this, "hes_lab_v2.svg"));
 
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 20, Color.RED, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 20, Color.GREEN, 1000);
-        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 20, Color.BLUE, 1000);
+        mapView.getController()
+                .sparkAtPoint(new PointF(Float.valueOf(x1), Float.valueOf(y1)), 20, Color.YELLOW, 10000);
+        mapView.getController()
+                .sparkAtPoint(new PointF(Float.valueOf(x2), Float.valueOf(y2)), 20, Color.GREEN, 10000);
+        mapView.getController().sparkAtPoint(new PointF(Float.valueOf(x3), Float.valueOf(y3)), 20, Color.BLUE, 10000);
         mapView.getController().setScrollGestureEnabled(false);
         mapView.getController().setZoomGestureEnabled(false);
 
@@ -223,7 +225,7 @@ public class MapActivity extends BaseActivity {
 
                 mapView.getOverLays().remove(locationOverlay);
 
-                locationOverlay = new SVGMapLocationOverlay(mapView);
+                locationOverlay = new SVGMapLocationOverlay(mapView, "default");
                 locationOverlay.setPosition(new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
 
                 mapView.getOverLays().add(locationOverlay);

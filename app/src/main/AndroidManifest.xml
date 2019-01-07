@@ -27,7 +27,8 @@
         </activity>
         <activity android:name=".ui.MapFilterActivity" />
         <activity android:name=".ui.ApDeployActivity" />
-        <activity android:name=".ui.MapActivity"></activity>
+        <activity android:name=".ui.MapActivity" />
+        <activity android:name=".ui.MapShowAllFilterActivity"></activity>
     </application>
 
 </manifest>
