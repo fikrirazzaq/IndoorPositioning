@@ -15,8 +15,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.MainActivity" />
-        <activity android:name=".ui.DashboardActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.DashboardActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,10 +29,18 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MapFilterActivity" />
-        <activity android:name=".ui.ApDeployActivity" />
-        <activity android:name=".ui.MapActivity" />
-        <activity android:name=".ui.MapShowAllFilterActivity"></activity>
+        <activity
+            android:name=".ui.MapFilterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ApDeployActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.MapActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.MapShowAllFilterActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -96,7 +96,7 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
         MyViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.tv_name);
-            rssi = view.findViewById(R.id.tv_rssi);
+            rssi = view.findViewById(R.id.tv_rssi); //
             cap = view.findViewById(R.id.tv_cap);
             freq = view.findViewById(R.id.tv_freq);
             img = view.findViewById(R.id.img_wifi);
@@ -104,11 +104,11 @@ public class ApAdapter extends RecyclerView.Adapter<ApAdapter.MyViewHolder> {
             bssid = view.findViewById(R.id.tv_bssid);
             ap = view.findViewById(R.id.tv_ap);
             kalmanDistance = view.findViewById(R.id.tx_distance_kalman);
-            kalmanRssi = view.findViewById(R.id.tv_rssi_kalman);
+            kalmanRssi = view.findViewById(R.id.tv_rssi_kalman); //
             kalmanDistanceTypeB = view.findViewById(R.id.tx_distance_kalman_type_b);
-            kalmanRssiTypeB = view.findViewById(R.id.tv_rssi_kalman_type_b);
+            kalmanRssiTypeB = view.findViewById(R.id.tv_rssi_kalman_type_b); //
             feedbackDistance = view.findViewById(R.id.tx_distance_feedback);
-            feedbackRssi = view.findViewById(R.id.tv_rssi_feedback);
+            feedbackRssi = view.findViewById(R.id.tv_rssi_feedback); //
         }
     }
 }

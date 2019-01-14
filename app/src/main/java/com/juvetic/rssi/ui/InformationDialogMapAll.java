@@ -74,22 +74,28 @@ public class InformationDialogMapAll extends BottomSheetDialogFragment {
         d1.setText(ToolUtil.Storage.getValueString(getContext(), "d1"));
         d2.setText(ToolUtil.Storage.getValueString(getContext(), "d2"));
         d3.setText(ToolUtil.Storage.getValueString(getContext(), "d3"));
+
         d1Kalman1.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap1_type_a"));
         d2Kalman1.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap2_type_a"));
         d3Kalman1.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap3_type_a"));
+
         d1Kalman2.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap1_type_b"));
         d2Kalman2.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap2_type_b"));
         d3Kalman2.setText(ToolUtil.Storage.getValueString(getContext(), "dist_kalman_ap3_type_b"));
+
         d1Feedback.setText(ToolUtil.Storage.getValueString(getContext(), "dist_feedback_ap1"));
         d2Feedback.setText(ToolUtil.Storage.getValueString(getContext(), "dist_feedback_ap2"));
         d3Feedback.setText(ToolUtil.Storage.getValueString(getContext(), "dist_feedback_ap3"));
 
         xPos.setText(ToolUtil.Storage.getValueString(getContext(), "xPos"));
         yPos.setText(ToolUtil.Storage.getValueString(getContext(), "yPos"));
+
         xPosKalman1.setText(ToolUtil.Storage.getValueString(getContext(), "xPosKalman1"));
         yPosKalman1.setText(ToolUtil.Storage.getValueString(getContext(), "yPosKalman1"));
+
         xPosKalman2.setText(ToolUtil.Storage.getValueString(getContext(), "xPosKalman2"));
         yPosKalman2.setText(ToolUtil.Storage.getValueString(getContext(), "yPosKalman2"));
+
         xPosFeedback.setText(ToolUtil.Storage.getValueString(getContext(), "xPosFeedback"));
         yPosFeedback.setText(ToolUtil.Storage.getValueString(getContext(), "yPosFeedback"));
     }

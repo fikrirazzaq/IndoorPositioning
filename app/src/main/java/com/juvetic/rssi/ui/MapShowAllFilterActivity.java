@@ -10,8 +10,11 @@ import android.graphics.PointF;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import com.juvetic.rssi.R;
 import com.juvetic.rssi.model.AccessPoint;
 import com.juvetic.rssi.util.ApComparator;
@@ -21,13 +24,21 @@ import com.juvetic.rssi.util.helper.AssetsHelper;
 import id.recharge.library.SVGMapView;
 import id.recharge.library.SVGMapViewListener;
 import id.recharge.library.overlay.SVGMapLocationOverlay;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 public class MapShowAllFilterActivity extends BaseActivity {
 
     public static final String EXTRA_FILTER = "extra_filter";
+
+    private static final String TAG = MapShowAllFilterActivity.class.getSimpleName();
 
     private SVGMapView mapView;
 
@@ -103,6 +114,19 @@ public class MapShowAllFilterActivity extends BaseActivity {
                 return true;
             case R.id.map_menu_reload:
                 wifiManager.startScan();
+                return true;
+            case R.id.menu_main_export:
+                saveExcelFile(MapShowAllFilterActivity.this, "List RSSI and Position.xls",
+                        rssiListAp1, rssiKFListAp1,
+                        rssiListAp2, rssiKFListAp2,
+                        rssiListAp3, rssiKFListAp3,
+                        rssiKFListAp1v2, rssiKFListAp2v2,
+                        rssiKFListAp3v2, rssiFBListAp1,
+                        rssiFBListAp2, rssiFBListAp3,
+                        xRaw, yRaw,
+                        xKF1, yKF1,
+                        xKF2, yKF2,
+                        xFB, yFB);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -221,6 +245,8 @@ public class MapShowAllFilterActivity extends BaseActivity {
 
                             rssiListAp1.add((double) scanResult.level);
                             rssiKFListAp1.add(kfAlgoAp1TypeA.get(3));
+                            rssiKFListAp1v2.add(kfAlgoAp1TypeB.get(3));
+                            rssiFBListAp1.add(fbAlgoAp1.get(3));
 
                             ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap1",
                                     iAp1);
@@ -324,6 +350,8 @@ public class MapShowAllFilterActivity extends BaseActivity {
 
                             rssiListAp2.add((double) scanResult.level);
                             rssiKFListAp2.add(kfAlgoAp2TypeA.get(3));
+                            rssiKFListAp2v2.add(kfAlgoAp2TypeB.get(3));
+                            rssiFBListAp2.add(fbAlgoAp2.get(3));
 
                             ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap2", iAp2);
                             ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "pre_rssi_ap2",
@@ -428,6 +456,8 @@ public class MapShowAllFilterActivity extends BaseActivity {
 
                             rssiListAp3.add((double) scanResult.level);
                             rssiKFListAp3.add(kfAlgoAp3TypeA.get(3));
+                            rssiKFListAp3v2.add(kfAlgoAp3TypeB.get(3));
+                            rssiFBListAp3.add(fbAlgoAp3.get(3));
 
                             ToolUtil.Storage.setValueInt(MapShowAllFilterActivity.this, "i_kalman_ap3", iAp3);
                             ToolUtil.Storage.setValueString(MapShowAllFilterActivity.this, "pre_rssi_ap3",
@@ -532,51 +562,57 @@ public class MapShowAllFilterActivity extends BaseActivity {
                         Double.valueOf(x2), Double.valueOf(y2), d2,
                         Double.valueOf(x3), Double.valueOf(y3), d3);
 
+                xRaw.add(Math.round(xy.get(0)));
+                yRaw.add(Math.round(xy.get(1)));
+
                 xyKalman1 = Formula.koordinat(
                         Double.valueOf(x1), Double.valueOf(y1), d1Kalman1,
                         Double.valueOf(x2), Double.valueOf(y2), d2Kalman1,
                         Double.valueOf(x3), Double.valueOf(y3), d3Kalman1);
+
+                xKF1.add(Math.round(xyKalman1.get(0)));
+                yKF1.add(Math.round(xyKalman1.get(1)));
 
                 xyKalman2 = Formula.koordinat(
                         Double.valueOf(x1), Double.valueOf(y1), d1Kalman2,
                         Double.valueOf(x2), Double.valueOf(y2), d2Kalman2,
                         Double.valueOf(x3), Double.valueOf(y3), d3Kalman2);
 
+                xKF2.add(Math.round(xyKalman2.get(0)));
+                yKF2.add(Math.round(xyKalman2.get(1)));
+
                 xyFeedback = Formula.koordinat(
                         Double.valueOf(x1), Double.valueOf(y1), d1Feedback,
                         Double.valueOf(x2), Double.valueOf(y2), d2Feedback,
                         Double.valueOf(x3), Double.valueOf(y3), d3Feedback);
 
+                xFB.add(Math.round(xyFeedback.get(0)));
+                yFB.add(Math.round(xyFeedback.get(1)));
+
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "xPos",
-                                String.valueOf(xy.get(0).floatValue()));
+                                String.valueOf(Math.round(xy.get(0))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "yPos",
-                                String.valueOf(xy.get(1).floatValue()));
+                                String.valueOf(Math.round(xy.get(1))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "xPosKalman1",
-                                String.valueOf(xyKalman1.get(0).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyKalman1.get(0))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "yPosKalman1",
-                                String.valueOf(xyKalman1.get(1).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyKalman1.get(1))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "xPosKalman2",
-                                String.valueOf(xyKalman2.get(0).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyKalman2.get(0))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "yPosKalman2",
-                                String.valueOf(xyKalman2.get(1).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyKalman2.get(1))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "xPosFeedback",
-                                String.valueOf(xyFeedback.get(0).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyFeedback.get(0))));
                 ToolUtil.Storage
                         .setValueString(MapShowAllFilterActivity.this, "yPosFeedback",
-                                String.valueOf(xyFeedback.get(1).floatValue
-                                        ()));
+                                String.valueOf(Math.round(xyFeedback.get(1))));
 
                 xPos = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "xPos");
                 yPos = ToolUtil.Storage.getValueString(MapShowAllFilterActivity.this, "yPos");
@@ -592,21 +628,77 @@ public class MapShowAllFilterActivity extends BaseActivity {
                 mapView.getOverLays().remove(locationOverlayKalman2);
                 mapView.getOverLays().remove(locationOverlayFeedback);
 
+                float x_smooth = Float.valueOf(xPos);
+                if (x_smooth < MIN_X) {
+                    x_smooth = MIN_X;
+                } else if (x_smooth > MAX_X) {
+                    x_smooth = MAX_X;
+                }
+
+                float y_smooth = Float.valueOf(yPos);
+                if (y_smooth < MIN_Y) {
+                    y_smooth = MIN_Y;
+                } else if (y_smooth > MAX_Y) {
+                    y_smooth = MAX_Y;
+                }
+
+                float x_smooth_kalman1 = Float.valueOf(xPosKalman1);
+                if (x_smooth_kalman1 < MIN_X) {
+                    x_smooth_kalman1 = MIN_X;
+                } else if (x_smooth_kalman1 > MAX_X) {
+                    x_smooth_kalman1 = MAX_X;
+                }
+
+                float y_smooth_kalman1 = Float.valueOf(yPosKalman1);
+                if (y_smooth_kalman1 < MIN_Y) {
+                    y_smooth_kalman1 = MIN_Y;
+                } else if (y_smooth > MAX_Y) {
+                    y_smooth_kalman1 = MAX_Y;
+                }
+
+                float x_smooth_kalman2 = Float.valueOf(xPosKalman2);
+                if (x_smooth_kalman2 < MIN_X) {
+                    x_smooth_kalman2 = MIN_X;
+                } else if (x_smooth_kalman2 > MAX_X) {
+                    x_smooth_kalman2 = MAX_X;
+                }
+
+                float y_smooth_kalman2 = Float.valueOf(yPosKalman2);
+                if (y_smooth_kalman2 < MIN_Y) {
+                    y_smooth_kalman2 = MIN_Y;
+                } else if (y_smooth_kalman2 > MAX_Y) {
+                    y_smooth_kalman2 = MAX_Y;
+                }
+
+                float x_smooth_feedback = Float.valueOf(xPosFeedback);
+                if (x_smooth_feedback < MIN_X) {
+                    x_smooth_feedback = MIN_X;
+                } else if (x_smooth_feedback > MAX_X) {
+                    x_smooth_feedback = MAX_X;
+                }
+
+                float y_smooth_feedback = Float.valueOf(yPosFeedback);
+                if (y_smooth_feedback < MIN_Y) {
+                    y_smooth_feedback = MIN_Y;
+                } else if (y_smooth_feedback > MAX_Y) {
+                    y_smooth_feedback = MAX_Y;
+                }
+
                 locationOverlayKalman1 = new SVGMapLocationOverlay(mapView, "kalman1");
                 locationOverlayKalman1.setPosition(
-                        new PointF(Float.valueOf(xPosKalman1), Float.valueOf(yPosKalman1)));
+                        new PointF(x_smooth_kalman1, y_smooth_kalman1));
 
                 locationOverlayKalman2 = new SVGMapLocationOverlay(mapView, "kalman2");
                 locationOverlayKalman2.setPosition(
-                        new PointF(Float.valueOf(xPosKalman2), Float.valueOf(yPosKalman2)));
+                        new PointF(x_smooth_kalman2, y_smooth_kalman2));
 
                 locationOverlayFeedback = new SVGMapLocationOverlay(mapView, "feedback");
                 locationOverlayFeedback.setPosition(
-                        new PointF(Float.valueOf(xPosFeedback), Float.valueOf(yPosFeedback)));
+                        new PointF(x_smooth_feedback, y_smooth_feedback));
 
                 locationOverlay = new SVGMapLocationOverlay(mapView, "default");
                 locationOverlay.setPosition(
-                        new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                        new PointF(x_smooth, y_smooth));
 
                 mapView.getOverLays().add(locationOverlay);
                 mapView.getOverLays().add(locationOverlayKalman1);
@@ -619,6 +711,118 @@ public class MapShowAllFilterActivity extends BaseActivity {
 
             wifiManager.startScan();
         }
+    }
+
+    private static boolean saveExcelFile(Context context, String fileName,
+            ArrayList<Double> rssiListAp1, ArrayList<Double> rssiKFListAp1,
+            ArrayList<Double> rssiListAp2, ArrayList<Double> rssiKFListAp2,
+            ArrayList<Double> rssiListAp3, ArrayList<Double> rssiKFListAp3,
+            ArrayList<Double> rssiKFListAp1v2, ArrayList<Double> rssiKFListAp2v2,
+            ArrayList<Double> rssiKFListAp3v2, ArrayList<Double> rssiFBListAp1,
+            ArrayList<Double> rssiFBListAp2, ArrayList<Double> rssiFBListAp3,
+            ArrayList<Long> xRaw, ArrayList<Long> yRaw,
+            ArrayList<Long> xKF1, ArrayList<Long> yKF1,
+            ArrayList<Long> xKF2, ArrayList<Long> yKF2,
+            ArrayList<Long> xFeedback, ArrayList<Long> yFeedback) {
+
+        // check if available and not read only
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
+            Log.e(TAG, "Storage not available or read only");
+            return false;
+        }
+
+        boolean success = false;
+
+        //New Workbook
+        Workbook wb = new HSSFWorkbook();
+
+        //New Sheet
+        Sheet sheetRssiAp1 = wb.createSheet("AP1");
+        Sheet sheetRssiAp1KF = wb.createSheet("AP1 KFv1");
+        Sheet sheetRssiAp1KF2 = wb.createSheet("AP1 KFv2");
+        Sheet sheetRssiAp1FB = wb.createSheet("AP1 Feedback");
+        Sheet sheetRssiAp2 = wb.createSheet("AP2");
+        Sheet sheetRssiAp2KF = wb.createSheet("AP2 KFv1");
+        Sheet sheetRssiAp2KF2 = wb.createSheet("AP2 KFv2");
+        Sheet sheetRssiAp2FB = wb.createSheet("AP2 Feedback");
+        Sheet sheetRssiAp3 = wb.createSheet("AP3");
+        Sheet sheetRssiAp3KF = wb.createSheet("AP3 KFv1");
+        Sheet sheetRssiAp3KF2 = wb.createSheet("AP3 KFv2");
+        Sheet sheetRssiAp3FB = wb.createSheet("AP3 Feedback");
+        Sheet sheetXRaw = wb.createSheet("X Raw");
+        Sheet sheetYRaw = wb.createSheet("Y Raw");
+        Sheet sheetXKF1 = wb.createSheet("X KFv1");
+        Sheet sheetYKF1 = wb.createSheet("Y KFv1");
+        Sheet sheetXKF2 = wb.createSheet("X KFv2");
+        Sheet sheetYKF2 = wb.createSheet("Y KFv2");
+        Sheet sheetXFB = wb.createSheet("X Feedback");
+        Sheet sheetYFB = wb.createSheet("Y Feedback");
+
+        // AP1 RSSI
+        for (int i = 0; i < rssiListAp1.size(); i++) {
+            sheetRssiAp1.createRow(i).createCell(0).setCellValue(rssiListAp1.get(i));
+            sheetRssiAp1KF.createRow(i).createCell(0).setCellValue(rssiKFListAp1.get(i));
+            sheetRssiAp1KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp1v2.get(i));
+            sheetRssiAp1FB.createRow(i).createCell(0).setCellValue(rssiFBListAp1.get(i));
+        }
+
+        // AP2 RSSI
+        for (int i = 0; i < rssiListAp2.size(); i++) {
+            sheetRssiAp2.createRow(i).createCell(0).setCellValue(rssiListAp2.get(i));
+            sheetRssiAp2KF.createRow(i).createCell(0).setCellValue(rssiKFListAp2.get(i));
+            sheetRssiAp2KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp2v2.get(i));
+            sheetRssiAp2FB.createRow(i).createCell(0).setCellValue(rssiFBListAp2.get(i));
+        }
+
+        // AP3 RSSI
+        for (int i = 0; i < rssiListAp3.size(); i++) {
+            sheetRssiAp3.createRow(i).createCell(0).setCellValue(rssiListAp3.get(i));
+            sheetRssiAp3KF.createRow(i).createCell(0).setCellValue(rssiKFListAp3.get(i));
+            sheetRssiAp3KF2.createRow(i).createCell(0).setCellValue(rssiKFListAp3v2.get(i));
+            sheetRssiAp3FB.createRow(i).createCell(0).setCellValue(rssiFBListAp3.get(i));
+        }
+
+        // XY
+        for (int i = 0; i < xRaw.size(); i++) {
+            sheetXRaw.createRow(i).createCell(0).setCellValue(xRaw.get(i));
+            sheetYRaw.createRow(i).createCell(0).setCellValue(yRaw.get(i));
+
+            sheetXKF1.createRow(i).createCell(0).setCellValue(xKF1.get(i));
+            sheetYKF1.createRow(i).createCell(0).setCellValue(yKF1.get(i));
+
+            sheetXKF2.createRow(i).createCell(0).setCellValue(xKF2.get(i));
+            sheetYKF2.createRow(i).createCell(0).setCellValue(yKF2.get(i));
+
+            sheetXFB.createRow(i).createCell(0).setCellValue(xFeedback.get(i));
+            sheetYFB.createRow(i).createCell(0).setCellValue(yFeedback.get(i));
+        }
+
+        // Create a path where we will place our List of objects on external storage
+        File file = new File(context.getExternalFilesDir(null), fileName);
+
+        try (FileOutputStream os = new FileOutputStream(file)) {
+            wb.write(os);
+            Log.w("FileUtils", "Writing file" + file);
+            Toast.makeText(context, "Exported to " + file, Toast.LENGTH_SHORT).show();
+            success = true;
+        } catch (IOException e) {
+            Toast.makeText(context, "Error writing " + e, Toast.LENGTH_SHORT).show();
+            Log.w("FileUtils", "Error writing " + file, e);
+        } catch (Exception e) {
+            Toast.makeText(context, "Error " + e, Toast.LENGTH_SHORT).show();
+            Log.w("FileUtils", "Failed to save file", e);
+        }
+        return success;
+    }
+
+    public static boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
+    }
+
+    public static boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 
 }

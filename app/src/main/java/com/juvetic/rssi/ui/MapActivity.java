@@ -211,22 +211,31 @@ public class MapActivity extends BaseActivity {
                         Double.valueOf(x3), Double.valueOf(y3), Double.parseDouble(ToolUtil.Storage.getValueString
                                 (MapActivity.this, "d3")));
                 ToolUtil.Storage
-                        .setValueString(MapActivity.this, "xPos", String.valueOf(xy.get(0).floatValue()));
+                        .setValueString(MapActivity.this, "xPos", String.valueOf(Math.round(xy.get(0))));
                 ToolUtil.Storage
-                        .setValueString(MapActivity.this, "yPos", String.valueOf(xy.get(1).floatValue()));
-
-                Log.d(MapFilterActivity.class.getSimpleName(),
-                        "onReceive: X " + String.valueOf(xy.get(0).floatValue()));
-                Log.d(MapFilterActivity.class.getSimpleName(),
-                        "onReceive: Y " + String.valueOf(xy.get(1).floatValue()));
+                        .setValueString(MapActivity.this, "yPos", String.valueOf(Math.round(xy.get(1))));
 
                 xPos = ToolUtil.Storage.getValueString(MapActivity.this, "xPos");
                 yPos = ToolUtil.Storage.getValueString(MapActivity.this, "yPos");
 
                 mapView.getOverLays().remove(locationOverlay);
 
+                float x_smooth = Float.valueOf(xPos);
+                if (x_smooth < MIN_X) {
+                    x_smooth = MIN_X;
+                } else if (x_smooth > MAX_X) {
+                    x_smooth = MAX_X;
+                }
+
+                float y_smooth = Float.valueOf(yPos);
+                if (y_smooth < MIN_Y) {
+                    y_smooth = MIN_Y;
+                } else if (y_smooth > MAX_Y) {
+                    y_smooth = MAX_Y;
+                }
+
                 locationOverlay = new SVGMapLocationOverlay(mapView, "default");
-                locationOverlay.setPosition(new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                locationOverlay.setPosition(new PointF(x_smooth, y_smooth));
 
                 mapView.getOverLays().add(locationOverlay);
                 mapView.refresh();

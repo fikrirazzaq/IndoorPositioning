@@ -543,37 +543,51 @@ public class MapFilterActivity extends BaseActivity {
                         .setValueString(MapFilterActivity.this, "d3_filter", String.valueOf(d3));
 
                 ToolUtil.Storage
-                        .setValueString(MapFilterActivity.this, "xPos_filter", String.valueOf(xy.get(0).floatValue
-                                ()));
+                        .setValueString(MapFilterActivity.this, "xPos_filter",
+                                String.valueOf(Math.round(xy.get(0))));
                 ToolUtil.Storage
                         .setValueString(MapFilterActivity.this, "yPos_filter",
-                                String.valueOf(xy.get(1).floatValue()));
+                                String.valueOf(Math.round(xy.get(1))));
 
                 xPos = ToolUtil.Storage.getValueString(MapFilterActivity.this, "xPos_filter");
                 yPos = ToolUtil.Storage.getValueString(MapFilterActivity.this, "yPos_filter");
 
                 mapView.getOverLays().remove(locationOverlay);
 
+                float x_smooth = Float.valueOf(xPos);
+                if (x_smooth < MIN_X) {
+                    x_smooth = MIN_X;
+                } else if (x_smooth > MAX_X) {
+                    x_smooth = MAX_X;
+                }
+
+                float y_smooth = Float.valueOf(yPos);
+                if (y_smooth < MIN_Y) {
+                    y_smooth = MIN_Y;
+                } else if (y_smooth > MAX_Y) {
+                    y_smooth = MAX_Y;
+                }
+
                 switch (filter) {
                     case "kalman1":
                         locationOverlay = new SVGMapLocationOverlay(mapView, "kalman1");
                         locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                                new PointF(x_smooth, y_smooth));
                         break;
                     case "kalman2":
                         locationOverlay = new SVGMapLocationOverlay(mapView, "kalman2");
                         locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                                new PointF(x_smooth, y_smooth));
                         break;
                     case "feedback":
                         locationOverlay = new SVGMapLocationOverlay(mapView, "feedback");
                         locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                                new PointF(x_smooth, y_smooth));
                         break;
                     default:
                         locationOverlay = new SVGMapLocationOverlay(mapView, "default");
                         locationOverlay.setPosition(
-                                new PointF(Float.valueOf(xPos), Float.valueOf(yPos)));
+                                new PointF(x_smooth, y_smooth));
                         break;
                 }
 

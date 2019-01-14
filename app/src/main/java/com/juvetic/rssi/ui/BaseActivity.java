@@ -12,6 +12,14 @@ import java.util.Queue;
 
 public class BaseActivity extends AppCompatActivity {
 
+    public static final int MAX_X = 725;
+
+    public static final int MIN_X = -125;
+
+    public static final int MIN_Y = 0;
+
+    public static final int MAX_Y = 1325;
+
     TinyDB tinydb;
 
     String x1, y1, x2, y2, x3, y3,
@@ -62,6 +70,18 @@ public class BaseActivity extends AppCompatActivity {
 
     ArrayList<Double> rssiKFListAp3 = new ArrayList<>();
 
+    ArrayList<Double> rssiKFListAp1v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp2v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiKFListAp3v2 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp1 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp2 = new ArrayList<>();
+
+    ArrayList<Double> rssiFBListAp3 = new ArrayList<>();
+
     ArrayList<Double> kfAlgoAp1TypeA = new ArrayList<>();
 
     ArrayList<Double> kfAlgoAp2TypeA = new ArrayList<>();
@@ -79,6 +99,22 @@ public class BaseActivity extends AppCompatActivity {
     ArrayList<Double> fbAlgoAp2 = new ArrayList<>();
 
     ArrayList<Double> fbAlgoAp3 = new ArrayList<>();
+
+    ArrayList<Long> xRaw = new ArrayList<>();
+
+    ArrayList<Long> yRaw = new ArrayList<>();
+
+    ArrayList<Long> xKF1 = new ArrayList<>();
+
+    ArrayList<Long> yKF1 = new ArrayList<>();
+
+    ArrayList<Long> xKF2 = new ArrayList<>();
+
+    ArrayList<Long> yKF2 = new ArrayList<>();
+
+    ArrayList<Long> xFB = new ArrayList<>();
+
+    ArrayList<Long> yFB = new ArrayList<>();
 
     List<Double> xy;
 
